@@ -7,15 +7,23 @@ const { getAddressFromPrivateKey } = require('@zilliqa-js/crypto');
 const { BN, units } = require('@zilliqa-js/util');
 const setup = setup_chain_and_wallet(use_testnet);
 
+async function zilBalanceForKey(key, chain, verbose = false)
+{
+  const addr = getAddressFromPrivateKey(key);
+  const balance = await chain.blockchain.getBalance(addr);
+  let b_zil = new BN(balance.result.balance);
+  b_zil = units.fromQa(b_zil, 'zil');
+  if (verbose) {
+    console.log(`${addr}: ${b_zil} ZIL`);
+  }
+  return b_zil;
+}
+
 async function chkBalances() {
   try {
     let i = 0;
     for (i=0; i<setup.keys.length; i++) {
-      const addr = getAddressFromPrivateKey(setup.keys[i]);
-      const balance = await setup.zilliqa.blockchain.getBalance(addr);
-      let b_zil = new BN(balance.result.balance);
-      b_zil = units.fromQa(b_zil, 'zil');
-      console.log(`${addr}: ${b_zil} ZIL`);
+      const b = await zilBalanceForKey(setup.keys[i], setup.zilliqa, true);
     }
   }
   catch (err) {
@@ -24,5 +32,6 @@ async function chkBalances() {
 }
 
 exports.chkBalances = chkBalances;
+exports.zilBalanceForKey = zilBalanceForKey;
 
-chkBalances();
+//chkBalances();
