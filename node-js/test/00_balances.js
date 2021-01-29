@@ -19,7 +19,7 @@ describe("Basic connection to blockchain and set up of accounts", function () {
     await chk_for_all_keys(false);
   });
 
-  it("should be able to get the balances on testnet should be non-zero", async function() {
+  it("should be able to get the balances on testnet and should be non-zero", async function() {
     await chk_for_all_keys(true);
   });
 
