@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+source ./integration/common
+
+source_mock_env
+
+run_setup() {
+  mkdir -p "$LOG_PATH"
+
+  title "Setting up test environment"
+
+  pushd integration >/dev/null || exit
+  # Create empty EI .env file
+  touch external_initiator.env
+  popd >/dev/null || exit
+
+  pushd integration/scripts >/dev/null || exit
+  local log=$LOG_PATH/integration_setup.log
+  yarn install
+  yarn setup | tee "$log"
+  popd >/dev/null || exit
+
+  build_docker
+
+  title "Done setting up test environment"
+}
+
+run_setup
