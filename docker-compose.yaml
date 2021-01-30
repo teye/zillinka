@@ -1,0 +1,43 @@
+version: '3'
+services:
+  chainlink-core-db:
+    image: postgres:11.5
+    container_name: chainlink-core-db
+    restart: always
+    volumes:
+      - chainlink-core-db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=chainlink
+      - POSTGRES_USER=chainlink
+      - POSTGRES_PASSWORD=password
+  # chainlink-external-initiator-db:
+  #   image: postgres:11.5
+  #   container_name: chainlink-external-initiator-db
+  #   restart: always
+  #   volumes:
+  #     - chainlink-external-initiator-db:/var/lib/postgresql/data
+  #   ports:
+  #     - 5432:5432
+  #   environment:
+  #     - POSTGRES_DB=chainlink
+  #     - POSTGRES_USER=chainlink
+  #     - POSTGRES_PASSWORD=password
+  chainlink-node:
+    env_file: chainlink-node/.env
+    depends_on: 
+      - chainlink-core-db
+      - geth-client
+    build: ./chainlink-node
+    container_name: chainlink-node
+    ports:
+      - 6688:6688
+  geth-client:
+    image: ethereum/client-go
+    container_name: geth-client
+    command: -rinkeby --ws --ipcdisable --wsaddr 0.0.0.0 --wsorigins="*" --datadir /geth
+    ports:
+      - 8546:8546
+volumes:
+  chainlink-core-db:
