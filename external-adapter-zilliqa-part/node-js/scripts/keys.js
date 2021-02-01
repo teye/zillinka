@@ -9,6 +9,7 @@ exports.ZilPayPrivateKeys = [
 /* keys of accounts in Zillet test wallet to be used on isolated server (Simulated Env in IDE)
   ==> need to import them once through keystore file in neo-savant online IDE !*/
 exports.isolatedServerPrivateKeys = [
-  // zilliqa_keystore_0.json
-  '4d2f78aa77ea7341e7c9773da8f192ee71b037d0bb8a12e98929902135e7973f',
+  // zilliqa_keystore_0.json:
+  // 0x02089EB8d9c0A08Fcf00C34e5D8028EfCeCa1403
+  'a76c77196b2b00951eaf987b0b65069d46f566f9ba805aee7888326dfe30bec5',
 ];
