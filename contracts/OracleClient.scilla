@@ -77,6 +77,6 @@ end
 (* @notice: callback function that oracle calls with the data when asked for it *)
 transition callback_data(id: String, data: Uint32, argument: String)
   all_data[id][argument] := data; (* store and emit *)
-  ev = {_eventname : "callback_data: successful"; oracle: id; argument: argument; data: data};
+  ev = {_eventname : "callback_data"; oracle: id; argument: argument; data: data};
   event ev
 end

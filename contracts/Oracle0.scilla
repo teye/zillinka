@@ -48,8 +48,8 @@ transition request(arg: String)
   one32 = Uint32 1;
   next_id = builtin add job_id one32;
   next_job_id := next_id;
-  e = {_eventname : "request"; oracle_id: id; job: job_id; requestor: _sender; argument: arg};
-  event e
+  ev = {_eventname : "request"; oracle_id: id; job: job_id; requestor: _sender; argument: arg};
+  event ev
 end
 
 (* @notice: request id from an oracle. id sent back through callback *)
@@ -65,8 +65,8 @@ end
 (* @param:  data : the data (e.g. a gauge level)                *)
 (* @param:  req_id: the (for this oracle) unique request id     *)
 transition set_data(data: Uint32, job_id: Uint32)
-  e = {_eventname : "set_data"; oracle_id: id; job: job_id; data: data};
-  event e;
+  ev = {_eventname : "set_data"; oracle_id: id; job: job_id; data: data};
+  event ev;
   job_o <- jobs[job_id];
   match job_o with
   |None =>
