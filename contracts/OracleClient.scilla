@@ -69,8 +69,8 @@ transition callback_id(id: String)
     throw err
   |False =>
     oracles[id] := _sender;
-    e = {_eventname : "callback_id: added"; oracle_address: _sender; id_received: id};
-    event e
+    ev = {_eventname : "callback_id: added"; oracle_address: _sender; id_received: id};
+    event ev
   end (* ex *)
 end
 
