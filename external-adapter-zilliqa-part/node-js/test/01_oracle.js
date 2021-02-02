@@ -19,10 +19,13 @@ describe("Oracle and OracleClient", function () {
     "attempts": Long.fromNumber(10),
   };
 
+  // parameters and variables that are used between tests
   const oracle_id = "TEST0";
+  const request_date_string = "2021-01-15";
 
   let oracle_sc = null; // the contracts loaded from the bc: orcale and the client
   let client_sc = null;
+  let job_id = -1; // the id of the job the oracle creates
   let pub_key = ''; // public key to send transactions from
 
   before( function()  { // runt this only once before all tests that follow
@@ -32,6 +35,8 @@ describe("Oracle and OracleClient", function () {
     setup.zilliqa.wallet.addByPrivateKey(priv_key);
   });
 
+  function str_upper_eq(/*String*/str0, /*String*/str1) {return (str0.toUpperCase() == str1.toUpperCase());} // case insensitive str comparison
+
   it("should deploy the Oracle, its address should not be empty thereafter and have the correct ID in the init variable", async function() {
     const sc_string = StringFromFile("../../contracts/Oracle0.scilla"); // read scilla contract
     const init = [ // initial parameters for contract at deployment
@@ -40,7 +45,7 @@ describe("Oracle and OracleClient", function () {
     ];
     const [tx, sc] = await deploy_contract(sc_string, init, setup, tx_settings);
     const addr = sc.address;
-    console.log(`  ==> address of deployed Oracle contract: ${addr}`);
+    console.log(`  ... >  address of deployed Oracle contract: ${addr}`);
     assert.notStrictEqual(addr,'');
     oracle_sc = setup.zilliqa.contracts.at(addr); // load the deployed contract from the bc
     const init_chk = await oracle_sc.getInit();
@@ -52,27 +57,41 @@ describe("Oracle and OracleClient", function () {
     const init = [ { vname: '_scilla_version', type: 'Uint32',   value: '0', },];
     const [tx, sc] = await deploy_contract(sc_string, init, setup, tx_settings);
     const addr = sc.address;
-    console.log(`  ==> address of deployed OracleClient contract: ${addr}`);
+    console.log(`  ... >  address of deployed OracleClient contract: ${addr}`);
     assert.notStrictEqual(addr,'');
     client_sc = setup.zilliqa.contracts.at(addr); // load the deployed contract from the bc
   });
 
   it("should add the oracle to the Client and it should get back the ID from the oracle and store it correctly", async function() {
-
-
-//  async function call_sc( /*contract*/sc, /*string*/transition_name, /*array*/args,
-//                          /*BN*/amt_as_BN, /*string*/caller_pub_key, /*JSON*/ bc_setup, /*JSON*/tx_settings)
-
-//    console.log(`address of oracle: ${oracle_sc.address}`);
     const args = [ { vname: 'address',  type: 'ByStr20', value: oracle_sc.address, }, ];
     const tx = await call_contract(client_sc, 'add_oracle', args, new BN(0), pub_key, setup, tx_settings);
     const state = await client_sc.getState();
-//    console.log(state);
-//    const sub_state = await client_sc.getSubState('oracles');
-//    console.log(sub_state);
     const oracle_addr_chk = state.oracles[oracle_id];
-//    console.log(oracle_addr_chk);
-    assert.strictEqual(oracle_addr_chk.toUpperCase(), oracle_sc.address.toUpperCase(), `address of oracle with ID ${oracle_id} is wrong: ${oracle_addr_chk}`);
+    assert(str_upper_eq(oracle_addr_chk, oracle_sc.address), `address of oracle with ID ${oracle_id} is wrong: ${oracle_addr_chk}`);
+  });
+
+  it("should emit the correct events when the client is called to request data from the oracle with a date string as argument", async function() {
+    const args = [
+      { vname: 'id',  type: 'String', value: oracle_id, },
+      { vname: 'arg', type: 'String', value: request_date_string, },
+    ];
+    const tx = await call_contract(client_sc, 'data_request', args, new BN(0), pub_key, setup, tx_settings);
+    const tx_rec = tx.receipt;
+    assert(tx_rec.success,'calling data_request not successful');
+    // check the events
+    // was the correct event emitted by the Client?
+    assert(tx_rec.event_logs[0]._eventname == 'data_request');
+    let p = tx_rec.event_logs[0].params;
+    assert(str_upper_eq(p[0].value,oracle_sc.address),`oracle address in event is wrong: ${p[0].value}`);
+    assert.strictEqual(p[1].value,request_date_string,`date_string in event is wrong: ${p[1].value}`);
+    // was the request received by the oracle and did it emit the correct event?
+    assert(tx_rec.event_logs[1]._eventname == 'request');
+    p = tx_rec.event_logs[1].params;
+    assert.strictEqual(p[0].value, oracle_id, `id  of oracle emitting is wrong: ${p[0].value}`);
+    job_id = p[1].value
+    console.log(`  ... >  job with id ${job_id} created in oracle`);
+    assert(str_upper_eq(p[2].value, client_sc.address, `requestor is not client but wrong: ${p[2].value}`));
+    assert.strictEqual(p[3].value, request_date_string, `argument (date_string) is wrong: ${p[3].value}`);
   });
 
 
