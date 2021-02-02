@@ -71,6 +71,7 @@ describe("Oracle and OracleClient", function () {
   });
 
   it("should emit the correct events when the client is called to request data from the oracle with a date string as argument", async function() {
+    // calling: transition data_request(id : String, arg: String)
     const args = [
       { vname: 'id',  type: 'String', value: oracle_id, },
       { vname: 'arg', type: 'String', value: request_date_string, },
@@ -80,11 +81,13 @@ describe("Oracle and OracleClient", function () {
     assert(tx_rec.success,'calling data_request not successful');
     // check the events
     // was the correct event emitted by the Client?
+    // e = {_eventname : "data_request"; oracle: addr; argument: arg};
     assert(tx_rec.event_logs[0]._eventname == 'data_request');
     let p = tx_rec.event_logs[0].params;
     assert(str_upper_eq(p[0].value,oracle_sc.address),`oracle address in event is wrong: ${p[0].value}`);
     assert.strictEqual(p[1].value,request_date_string,`date_string in event is wrong: ${p[1].value}`);
     // was the request received by the oracle and did it emit the correct event?
+    //  e = {_eventname : "request"; oracle_id: id; job: job_id; requestor: _sender; argument: arg};
     assert(tx_rec.event_logs[1]._eventname == 'request');
     p = tx_rec.event_logs[1].params;
     assert.strictEqual(p[0].value, oracle_id, `id  of oracle emitting is wrong: ${p[0].value}`);
@@ -94,5 +97,36 @@ describe("Oracle and OracleClient", function () {
     assert.strictEqual(p[3].value, request_date_string, `argument (date_string) is wrong: ${p[3].value}`);
   });
 
+  it("should send the data to the oracle which should send it to the client, emit the correct events and finally have data stored in client's state", async function() {
+    // calling: transition set_data(data: Uint32, job_id: Uint32)
+    const data_test_value = 100;
+    const args = [
+      { vname: 'data',    type: 'Uint32', value: data_test_value.toString(), },
+      { vname: 'job_id',  type: 'Uint32', value: job_id.toString(), },
+    ];
+    const tx = await call_contract(oracle_sc, 'set_data', args, new BN(0), pub_key, setup, tx_settings);
+    const tx_rec = tx.receipt;
+    assert(tx_rec.success,'calling set_data not successful');
+    // check the events
+    // was the correct event emitted by the Oracle?
+    // e = {_eventname : "set_data"; oracle_id: id; job: job_id; data: data};
+    assert(tx_rec.event_logs[0]._eventname == 'set_data');
+    let p = tx_rec.event_logs[0].params;
+    assert.strictEqual(p[0].value,oracle_id,`oracle_id in event is wrong: ${p[0].value}`);
+    assert.strictEqual(p[1].value,job_id,`job_id in event is wrong: ${p[1].value}`);
+    assert.strictEqual(p[2].value,data_test_value.toString(),`data in event is wrong: ${p[2].value}`);
+    // was the data received by the client and did it emit the correct event?
+    //  ev = {_eventname : "callback_data"; oracle: id; argument: argument; data: data};
+    assert(tx_rec.event_logs[1]._eventname == 'callback_data');
+    p = tx_rec.event_logs[1].params;
+    assert.strictEqual(p[0].value, oracle_id, `id  of oracle in event is wrong: ${p[0].value}`);
+    assert.strictEqual(p[1].value, request_date_string, `argument (date_string) in event is wrong: ${p[1].value}`);
+    assert.strictEqual(p[2].value, data_test_value.toString(), `data in event is wrong: ${p[2].value}`);
+    // check the data is stored in the clients map all_data (checking its state)
+    const state = await client_sc.getState();
+    const value = state.all_data[oracle_id][request_date_string];
+    assert.strictEqual(value, data_test_value.toString(), `data stored on client for oracle ${oracle_id} on arg=${request_date_string} is wrong: ${value}`);
+
+  });
 
 });
