@@ -2,7 +2,7 @@
 Oracle contract and adapters for Chainlink nodes on/to/from Zilliqa blockchain
 
 ## Install the Zilliqa JS library (see: https://github.com/Zilliqa/Zilliqa-JavaScript-Library)
-You need a version of npm >=10.0.0 < 13, e.g. version 12.20 works. Install it inside the node-js sub directory
+You need a version of node >=10.0.0 < 13, e.g. version 12.20 works. Install it inside the node-js sub directory
 ```bash
 cd node-js
 ```
@@ -13,12 +13,18 @@ yarn add tslib # ignore errors about wrong dependencies: they are not needed
 yarn add bn.js
 ```
 
-## in order to run the mocha tests: 
+## To run the scripts that fetch data from the web install 2 node packages
+```bash
+cd node-js
+yarn add react-netlify-form isomorphic-fetch
+```
+
+## in order to run the mocha tests:
 ### Install mocha
 ```bash
 npm install --global mocha
 ```
-### Increase the parameters for a test to time out, and when it is considered "slow" 
+### Increase the parameters for a test to time out, and when it is considered "slow"
 As calls to the blockchain need a bit of time, add the following to your package.json (adjust the ms numbers depending on your needs):
 ```code
 "mocha": {
