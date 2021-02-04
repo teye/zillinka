@@ -1,6 +1,6 @@
-# Chainlink to Ziliqa Integration
+# Chainlink to Zilliqa Integration
 
-This project aims to integrate the Ziliqa blockchain with the Chainlink Oracle infrastructure so Oracle data can be requested and retrieved on the Ziliqa blockchain.
+This project aims to integrate the Zilliqa blockchain with the Chainlink Oracle infrastructure so Oracle data can be requested and retrieved on the Zilliqa blockchain.
 
 ## Modules
 
@@ -8,7 +8,7 @@ The project is a monorepo containing all components needed to retrieve data from
 
 ### The External Initiator (EI)
 
-[The External Initiator](./external-initiator/README.md) is a server process that can watch contract events via rpc or websocket. The process is spun up, configured with the addresses to watch and once an event is emitted, in our case on the Ziliqa blockchain, the event is retrieved as JSON. The event is then relayed to a registered job definition in the chainlink node. The job relays the data to the nodes' bridge which calls the external adapter.
+[The External Initiator](./external-initiator/README.md) is a server process that can watch contract events via rpc or websocket. The process is spun up, configured with the addresses to watch and once an event is emitted, in our case on the Zilliqa blockchain, the event is retrieved as JSON. The event is then relayed to a registered job definition in the chainlink node. The job relays the data to the nodes' bridge which calls the external adapter.
 
 ### The Chainlink Node
 
