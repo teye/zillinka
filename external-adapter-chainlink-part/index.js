@@ -22,7 +22,7 @@ const createRequest = (input, callback) => {
   const validator = new Validator(callback, input, customParams)
   const jobRunID = validator.validated.id
   const endpoint = validator.validated.data.endpoint || 'price'
-  const url = `https://min-api.cryptocompare.com/data/${endpoint}`
+  const url = `https://min-api.cryptocompare.com/data/${endpoint}` // TODO: FMB Change the address to url from unix time api
   const fsym = validator.validated.data.base.toUpperCase()
   const tsyms = validator.validated.data.quote.toUpperCase()
 
@@ -49,6 +49,7 @@ const createRequest = (input, callback) => {
       // result key. This allows different adapters to be compatible with
       // one another.
       response.data.result = Requester.validateResultNumber(response.data, [tsyms])
+      // TODO: FMB Take the result and send it to Zilliqa oracle contract 
       callback(response.status, Requester.success(jobRunID, response))
     })
     .catch(error => {
