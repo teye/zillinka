@@ -2,10 +2,12 @@ scilla_version 0
 
 (***********************************************************************************)
 (* Oracle: serves client requests through transition: request(arg: String)         *)
-(*         emits an event with the request details                                 *)
-(*         receives data through set_data(arg: String, data: Uint32) and calls the *)
+(*         emits an event with the request details, stores the request internally  *)
+(*         by assigning it a request_id storing the initiator (the client's addr)  *)
+(*         and the argument received with the request                              *)
+(*         receives data through set_data(arg: String, request_id: Uint32)         *)
 (*         the client back by sending a message to its callback:                   *)
-(*           callback_level(id: String, level: Option Uint32, argument: String))   *)
+(*           callback_data(oracle_id: String, data: Uint32, argument: String)      *)
 (***********************************************************************************)
 
 (*import ListUtils IntUtils BoolUtils *)

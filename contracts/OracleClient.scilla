@@ -3,9 +3,9 @@ scilla_version 0
 (**********************************************************************************)
 (* OracleClient:                                                                  *)
 (*  request data from an Oracle and receive it back in a callback:                *)
-(*    callback_data(id: String, data: Uint32, argument: String)                   *)
-(*  oracles are smart contracts on a certain address, identified by a string id   *)
-(*  and offering a transition: request(arg: String)                               *)
+(*    callback_data(oracle_id: String, data: Uint32, argument: String)            *)
+(*  oracles are smart contracts on a certain address, identified by a string      *)
+(*  oracle_id, and offering a transition: data_request(arg: String)               *)
 (**********************************************************************************)
 
 (*import ListUtils IntUtils BoolUtils *)
@@ -27,7 +27,7 @@ field oracles : Map String ByStr20 = Emp String ByStr20
 (* store all data received from all oracles *)
 field all_data : Map String (Map String Uint32) = Emp String (Map String Uint32)(* m[oracle_id][argument] = level *)
 
-(* @notice: request data from an oracle          *)
+(* @notice: request data from an oracle                 *)
 (* @param:  oracle_id : string to identify the oracle   *)
 transition data_request(oracle_id : String, arg: String)
   to_o <- oracles[oracle_id]; (* Option ByStr20 *)
@@ -62,6 +62,7 @@ transition delete_oracle(oracle_id : String)
 end
 
 (* @notice: callback function that oracle calls with its id when asked for it *)
+(* @param:  oracle_id : string to identify an oracle                          *)
 transition callback_id(oracle_id: String)
   ex <- exists oracles[oracle_id];
   match ex with
@@ -76,6 +77,9 @@ transition callback_id(oracle_id: String)
 end
 
 (* @notice: callback function that oracle calls with the data when asked for it *)
+(* @param:  oracle_id : string to identify an oracle                            *)
+(* @param:  data : the value of the data requested                              *)
+(* @param:  argument : string that was sent when requesting a data              *)
 transition callback_data(oracle_id: String, data: Uint32, argument: String)
   all_data[oracle_id][argument] := data; (* store and emit *)
   ev = {_eventname : "callback_data"; oracleId: oracle_id; argument: argument; data: data};
