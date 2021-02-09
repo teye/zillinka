@@ -92,6 +92,8 @@ describe("Oracle and OracleClient", function () {
     // was the request received by the oracle and did it emit the correct event?
     //  ev = {_eventname : "request"; oracleId: oracle_id; requestId: request_id; initiator: _sender; argument: arg};
     assert(tx_rec.event_logs[1]._eventname == 'request');
+    console.log('  ... > event emitted by the oracle when receiving a request for data');
+    console.log(tx_rec.event_logs[1]);
     p = tx_rec.event_logs[1].params;
     assert.strictEqual(p[0].value, oracle_id, `id of oracle emitting is wrong: ${p[0].value}`);
     data_req_id = p[1].value
