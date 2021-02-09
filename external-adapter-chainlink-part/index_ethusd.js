@@ -12,24 +12,25 @@ const customError = (data) => {
 // with a Boolean value indicating whether or not they
 // should be required.
 const customParams = {
-  // FMB set endpoint to  Berlin time zone in url below (fix)
+  base: ['base', 'from', 'coin'],
+  quote: ['quote', 'to', 'market'],
+  endpoint: false
 }
 
 const createRequest = (input, callback) => {
   // The Validator helps you validate the Chainlink request data
   const validator = new Validator(callback, input, customParams)
   const jobRunID = validator.validated.id
-  //const endpoint = validator.validated.data.endpoint || 'price'
-  // FMB Change the address to url from unix time api
-  const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
-  // FMB no need for paameters for this request
-//  const fsym = validator.validated.data.base.toUpperCase()
-//  const tsyms = validator.validated.data.quote.toUpperCase()
+  const endpoint = validator.validated.data.endpoint || 'price'
+  // TODO: FMB Change the address to url from unix time api
+   const url = `https://min-api.cryptocompare.com/data/${endpoint}`
+  // const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
+  const fsym = validator.validated.data.base.toUpperCase()
+  const tsyms = validator.validated.data.quote.toUpperCase()
 
   const params = {
-    // FMB no params needed, ural has no '?p1=P1&p2=P2&...'
-//    fsym,
-//    tsyms
+    fsym,
+    tsyms
   }
 
   // This is where you would add method and headers
@@ -49,8 +50,7 @@ const createRequest = (input, callback) => {
       // It's common practice to store the desired value at the top-level
       // result key. This allows different adapters to be compatible with
       // one another.
-//      response.data.result = Requester.validateResultNumber(response.data, [tsyms])
-      response.data.result = Requester.validateResultNumber(response.data, ["unixtime"]) // FMB: extract unixtime from json
+      response.data.result = Requester.validateResultNumber(response.data, [tsyms])
       // TODO: FMB Take the result and send it to Zilliqa oracle contract
       callback(response.status, Requester.success(jobRunID, response))
     })
