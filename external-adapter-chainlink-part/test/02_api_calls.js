@@ -1,7 +1,7 @@
 /* test the calls to get data from web in JSON format */
 var assert = require('assert');
 
-const api = require("../scripts/restApiCalls.js");
+const api = require("../restApiCalls.js");
 
 describe("Calls to fetch data from web through APIs in JSON format", function () {
 

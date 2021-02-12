@@ -1,8 +1,8 @@
 /* test connection to block chain and set up of accounts */
 var assert = require('assert');
 
-const {setup_chain_and_wallet} = require("../scripts/utils_zil.js");
-const {zilBalanceForKey} = require("../scripts/chkBalances.js");
+const {setup_chain_and_wallet} = require("../utils_zil.js");
+const {zilBalanceForKey} = require("../chkBalances.js");
 
 describe("Basic connection to blockchain and set up of accounts", function () {
 

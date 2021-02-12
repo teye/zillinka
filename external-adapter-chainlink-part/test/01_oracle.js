@@ -1,15 +1,14 @@
 /* test the basic oracle and the client contract, and the JS functions to deploy and interact */
 var assert = require('assert');
 
-const {StringFromFile} = require("../scripts/utils.js");
+const {StringFromFile} = require("../utils.js");
 const {
   setup_chain_and_wallet,
   deploy_contract,
-  call_contract} = require("../scripts/utils_zil.js");//const inter = require("./../interact.js");
+  call_contract} = require("../utils_zil.js");//const inter = require("./../interact.js");
 
 const { BN, Long, units } = require('@zilliqa-js/util');
 const {  getPubKeyFromPrivateKey} = require('@zilliqa-js/crypto');
-
 
 describe("Oracle and OracleClient", function () {
 
@@ -38,7 +37,7 @@ describe("Oracle and OracleClient", function () {
   function str_upper_eq(/*String*/str0, /*String*/str1) {return (str0.toUpperCase() == str1.toUpperCase());} // case insensitive str comparison
 
   it("should deploy the Oracle, its address should not be empty thereafter and have the correct ID in the init variable", async function() {
-    const sc_string = StringFromFile("../../contracts/Oracle0.scilla"); // read scilla contract
+    const sc_string = StringFromFile("contracts/Oracle0.scilla"); // read scilla contract
     const init = [ // initial parameters for contract at deployment
       { vname: '_scilla_version', type: 'Uint32',   value: '0', },
       { vname: 'oracle_id',       type: 'String',  value: oracle_id, },
@@ -54,7 +53,7 @@ describe("Oracle and OracleClient", function () {
   });
 
   it("should deploy the OracleClient and its address should not be empty thereafter", async function() {
-    const sc_string = StringFromFile("../../contracts/OracleClient.scilla"); // read scilla contract
+    const sc_string = StringFromFile("contracts/OracleClient.scilla"); // read scilla contract
     const init = [ { vname: '_scilla_version', type: 'Uint32',   value: '0', },];
     const [tx, sc] = await deploy_contract(sc_string, init, setup, tx_settings);
     const addr = sc.address;
