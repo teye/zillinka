@@ -63,7 +63,7 @@ const createRequest = (input, callback) => {
   const priv_key = bc_setup.keys[0];
   const pub_key = getPubKeyFromPrivateKey(priv_key);
   bc_setup.zilliqa.wallet.addByPrivateKey(priv_key);
-  const receiver_sc = bc_setup.zilliqa.contracts.at(receiver_address);
+  const receiver_sc = bc_setup.zilliqa.contracts.at(receiver_address); // load contract from chain
   const gas_price = units.toQa('5000', units.Units.Li);
   const gas_limit = Long.fromNumber(50000);
   const attempts = Long.fromNumber(10);
@@ -88,7 +88,7 @@ const createRequest = (input, callback) => {
         }
       });
     })
-    .then( uxt => { // set up the chain and wallet and load the contract from chain
+    .then( uxt => { // call the contract on chain to write the uxt on chain
       console.log(` ===> calling set() with the unix time ${uxt} to write to contract @  ${receiver_sc.address}`);
 
       const tx_settings = {   // use same settings for all transactions
