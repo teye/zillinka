@@ -36,6 +36,15 @@ func HandleRequest(conn, platform string, msg JsonrpcMessage) ([]JsonrpcMessage,
 	}
 }
 
+func HandleNonRpcRequest(conn, platform string, kind string, msg []byte) ([][]byte, error) {
+	switch platform {
+	case "zil":
+		return handleZilRequest(conn, kind, msg)
+	default:
+		return nil, fmt.Errorf("unexpected platform: %v", platform)
+	}
+}
+
 func SetHttpRoutes(router *gin.Engine) {
 	setXtzRoutes(router)
 	setBSNIritaRoutes(router)

@@ -50,8 +50,9 @@ func (srv *HttpService) createRouter() {
 	r.Use(gin.Recovery(), loggerFunc())
 
 	blockchain.SetHttpRoutes(r)
-	r.GET("/ws/:platform", srv.HandleWs)
+	r.GET("/ws/json-rpc/:platform", srv.HandleWs)
 	r.POST("/rpc/:platform", srv.HandleRpc)
+	r.GET("/ws/non-json-rpc/:platform/:kind", srv.HandleWsNonRPC)
 
 	srv.Router = r
 }
@@ -83,7 +84,40 @@ func (srv *HttpService) HandleRpc(c *gin.Context) {
 	c.JSON(http.StatusOK, resp[0])
 }
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+}
+
+func (srv *HttpService) HandleWsNonRPC(c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		logger.Error(err)
+		c.JSON(http.StatusInternalServerError, nil)
+		return
+	}
+	defer logger.ErrorIfCalling(conn.Close)
+
+	for {
+		mt, message, err := conn.ReadMessage()
+ 		if err != nil {
+			logger.Error("read:", err, message)
+			break
+		}
+
+		resp, err := blockchain.HandleNonRpcRequest("ws", c.Param("platform"), c.Param("kind") , message)
+		if err != nil {
+			logger.Error("handle request:", err)
+			continue
+		}
+
+		for _, msg := range resp {
+			err = conn.WriteMessage(mt, msg)
+			if err != nil {
+				logger.Error("write:", err)
+				break
+			}
+		}
+	}
+}
 
 func (srv *HttpService) HandleWs(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)

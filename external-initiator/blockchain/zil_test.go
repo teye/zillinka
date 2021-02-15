@@ -4,11 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/magiconair/properties/assert"
 	"github.com/smartcontractkit/external-initiator/store"
 	"github.com/smartcontractkit/external-initiator/subscriber"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCreateZilFilterMessage(t *testing.T) {
@@ -22,61 +19,24 @@ func TestCreateZilFilterMessage(t *testing.T) {
 			"empty",
 			store.ZilSubscription{},
 			subscriber.WS,
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_subscribe","params":["logs",{"address":null,"fromBlock":"0x0","toBlock":"latest","topics":[null]}]}`),
+			[]byte(nil),
 		},
 		{
 			"address only",
-			store.ZilSubscription{Addresses: []string{"0x049Bd8C3adC3fE7d3Fc2a44541d955A537c2A484"}},
+			store.ZilSubscription{Accounts: []string{"0xafccafdc1ce8249cec35a0b432e329ce1bfac179"}},
 			subscriber.WS,
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_subscribe","params":["logs",{"address":["0x049bd8c3adc3fe7d3fc2a44541d955a537c2a484"],"fromBlock":"0x0","toBlock":"latest","topics":[null]}]}`),
-		},
-		{
-			"single topic",
-			store.ZilSubscription{Topics: []string{"abc"}},
-			subscriber.WS,
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_subscribe","params":["logs",{"address":null,"fromBlock":"0x0","toBlock":"latest","topics":[["0x0000000000000000000000000000000000000000000000000000000000000abc"]]}]}`),
-		},
-		{
-			"multiple topics",
-			store.ZilSubscription{Topics: []string{"abc", "def", ""}},
-			subscriber.WS,
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_subscribe","params":["logs",{"address":null,"fromBlock":"0x0","toBlock":"latest","topics":[["0x0000000000000000000000000000000000000000000000000000000000000abc","0x0000000000000000000000000000000000000000000000000000000000000def"]]}]}`),
-		},
-		{
-			"address multiple topics",
-			store.ZilSubscription{Topics: []string{"abc", "def"}, Addresses: []string{"0x049Bd8C3adC3fE7d3Fc2a44541d955A537c2A484"}},
-			subscriber.WS,
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_subscribe","params":["logs",{"address":["0x049bd8c3adc3fe7d3fc2a44541d955a537c2a484"],"fromBlock":"0x0","toBlock":"latest","topics":[["0x0000000000000000000000000000000000000000000000000000000000000abc","0x0000000000000000000000000000000000000000000000000000000000000def"]]}]}`),
-		},
-		{
-			"empty RPC",
-			store.ZilSubscription{},
-			subscriber.RPC,
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_getLogs","params":[{"address":null,"fromBlock":"latest","toBlock":"latest","topics":[null]}]}`),
-		},
-		{
-			"RPC address multiple topics",
-			store.ZilSubscription{Topics: []string{"abc", "def"}, Addresses: []string{"0x049Bd8C3adC3fE7d3Fc2a44541d955A537c2A484"}},
-			subscriber.RPC,
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_getLogs","params":[{"address":["0x049bd8c3adc3fe7d3fc2a44541d955a537c2a484"],"fromBlock":"latest","toBlock":"latest","topics":[["0x0000000000000000000000000000000000000000000000000000000000000abc","0x0000000000000000000000000000000000000000000000000000000000000def"]]}]}`),
+			[]byte(`{"query":"EventLog","addresses":["0xafccafdc1ce8249cec35a0b432e329ce1bfac179"]}`),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := createZilManager(tt.p, store.Subscription{Zilliqa: tt.args}).GetTriggerJson(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetTriggerJson() = %s, want %s", got, tt.want)
+				t.Errorf("GetTriggerJson() = %s, \nwant %s", got, tt.want)
 			}
 		})
 	}
-
-	t.Run("has invalid filter query", func(t *testing.T) {
-		blockHash := common.HexToHash("0xabc")
-		got := zilManager{fq: &filterQuery{BlockHash: &blockHash, FromBlock: "0x1", ToBlock: "0x2"}}.GetTriggerJson()
-		if got != nil {
-			t.Errorf("GetTriggerJson() = %s, want nil", got)
-		}
-	})
 }
+
 
 func TestZilManager_GetTestJson(t *testing.T) {
 	type fields struct {
@@ -89,11 +49,11 @@ func TestZilManager_GetTestJson(t *testing.T) {
 		want   []byte
 	}{
 		{
-			"returns JSON when using RPC",
+			"returns empty when using RPC",
 			fields{
 				p: subscriber.RPC,
 			},
-			[]byte(`{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}`),
+			nil,
 		},
 		{
 			"returns empty when using WS",
@@ -105,11 +65,11 @@ func TestZilManager_GetTestJson(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := zilManager{
-				fq: tt.fields.fq,
-				p:  tt.fields.p,
+			z := zilManager{
+				//fq: tt.fields.fq,
+				p: tt.fields.p,
 			}
-			if got := e.GetTestJson(); !reflect.DeepEqual(got, tt.want) {
+			if got := z.GetTestJson(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetTestJson() = %v, want %v", got, tt.want)
 			}
 		})
@@ -125,52 +85,32 @@ func TestZilManager_ParseTestResponse(t *testing.T) {
 		data []byte
 	}
 	tests := []struct {
-		name              string
-		fields            fields
-		args              args
-		wantErr           bool
-		expectedFromBlock string
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
 	}{
 		{
 			"does nothing for WS",
 			fields{fq: &filterQuery{}, p: subscriber.WS},
 			args{},
 			false,
-			"",
 		},
 		{
-			"parses RPC responses",
+			"does nothing for RPC",
 			fields{fq: &filterQuery{}, p: subscriber.RPC},
-			args{[]byte(`{"jsonrpc":"2.0","id":1,"result":"0x1"}`)},
+			args{},
 			false,
-			"0x1",
-		},
-		{
-			"fails unmarshal payload",
-			fields{fq: &filterQuery{}, p: subscriber.RPC},
-			args{[]byte(`error`)},
-			true,
-			"",
-		},
-		{
-			"fails unmarshal result",
-			fields{fq: &filterQuery{}, p: subscriber.RPC},
-			args{[]byte(`{"jsonrpc":"2.0","id":1,"result":["0x1"]}`)},
-			true,
-			"",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := ethManager{
-				fq: tt.fields.fq,
-				p:  tt.fields.p,
+			e := zilManager{
+				//fq: tt.fields.fq,
+				p: tt.fields.p,
 			}
 			if err := e.ParseTestResponse(tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("ParseTestResponse() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if e.fq.FromBlock != tt.expectedFromBlock {
-				t.Errorf("FromBlock = %s, expected %s", e.fq.FromBlock, tt.expectedFromBlock)
 			}
 		})
 	}
@@ -185,12 +125,11 @@ func TestZilManager_ParseResponse(t *testing.T) {
 		data []byte
 	}
 	tests := []struct {
-		name              string
-		fields            fields
-		args              args
-		want              []subscriber.Event
-		want1             bool
-		expectedFromBlock string
+		name   string
+		fields fields
+		args   args
+		want   []subscriber.Event
+		want1  bool
 	}{
 		{
 			"fails parsing invalid payload",
@@ -198,163 +137,43 @@ func TestZilManager_ParseResponse(t *testing.T) {
 			args{data: []byte(`invalid`)},
 			nil,
 			false,
-			"",
 		},
 		{
 			"fails parsing invalid WS subscribe payload",
 			fields{fq: &filterQuery{}, p: subscriber.WS},
-			args{data: []byte(`{"jsonrpc":"2.0","id":1,"params":[]}`)},
+			args{data: []byte(`{"a":"b","c":1}`)},
 			nil,
 			false,
-			"",
 		},
 		{
 			"fails parsing invalid WS subscribe",
 			fields{fq: &filterQuery{}, p: subscriber.WS},
-			args{data: []byte(`{"jsonrpc":"2.0","id":1,"params":{"subscription":"test","result":[]}}`)},
+			args{data: []byte(`{ "query":"EventLogX", "value": [ { "address":"0x0000000000000000000000000000000000000000", "event_logs":[ { "_eventname":"foo1", "params":[ { "vname":"bar1", "type":"String", "value":"abc" }, { "vname":"bar2", "type":"ByStr32", "value":"0x0000000000000000000000000000000000000001" } ] } ] } ]}`)},
 			nil,
 			false,
-			"",
 		},
 		{
 			"successfully parses WS response",
 			fields{fq: &filterQuery{}, p: subscriber.WS},
-			args{data: []byte(`{"jsonrpc":"2.0","id":1,"params":{"subscription":"test","result":{"data":"test"}}}`)},
-			[]subscriber.Event{subscriber.Event(`{"logIndex":"","blockNumber":"","blockHash":"","transactionHash":"","transactionIndex":"","address":"","data":"test","topics":null}`)},
+			args{data: []byte(`{"query":"EventLog","value":[{"address":"0x0000000000000000000000000000000000000000","event_logs":[{"_eventname":"foo1","params":[{"vname":"bar1","type":"String","value":"abc"},{"vname":"bar2","type":"ByStr32","value":"0x0000000000000000000000000000000000000001"}]}]}]}`)},
+			[]subscriber.Event{
+				subscriber.Event(`{"address":"0x0000000000000000000000000000000000000000","event_logs":[{"_eventname":"foo1","params":[{"vname":"bar1","type":"String","value":"abc"},{"vname":"bar2","type":"ByStr32","value":"0x0000000000000000000000000000000000000001"}]}]}`),
+			},
 			true,
-			"",
-		},
-		{
-			"fails parsing invalid RPC payload",
-			fields{fq: &filterQuery{}, p: subscriber.RPC},
-			args{data: []byte(`{"jsonrpc":"2.0","id":1,"result":{}}`)},
-			nil,
-			false,
-			"",
-		},
-		{
-			"fails parsing invalid block number in RPC event payload",
-			fields{fq: &filterQuery{}, p: subscriber.RPC},
-			args{data: []byte(`{"jsonrpc":"2.0","id":1,"result":[{"data":"test"}]}`)},
-			[]subscriber.Event{subscriber.Event(`{"logIndex":"","blockNumber":"","blockHash":"","transactionHash":"","transactionIndex":"","address":"","data":"test","topics":null}`)},
-			true,
-			"",
-		},
-		{
-			"updates fromBlock from RPC payload",
-			fields{fq: &filterQuery{}, p: subscriber.RPC},
-			args{data: []byte(`{"jsonrpc":"2.0","id":1,"result":[{"data":"test","blockNumber":"0x0"}]}`)},
-			[]subscriber.Event{subscriber.Event(`{"logIndex":"","blockNumber":"0x0","blockHash":"","transactionHash":"","transactionIndex":"","address":"","data":"test","topics":null}`)},
-			true,
-			"0x1",
-		},
-		{
-			"does not update fromBlock in the past from RPC payload",
-			fields{fq: &filterQuery{FromBlock: "0x1"}, p: subscriber.RPC},
-			args{data: []byte(`{"jsonrpc":"2.0","id":1,"result":[{"data":"test","blockNumber":"0x0"}]}`)},
-			[]subscriber.Event{subscriber.Event(`{"logIndex":"","blockNumber":"0x0","blockHash":"","transactionHash":"","transactionIndex":"","address":"","data":"test","topics":null}`)},
-			true,
-			"0x1",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := zilManager{
-				fq: tt.fields.fq,
-				p:  tt.fields.p,
+			z := zilManager{
+				//fq: tt.fields.fq,
+				p: tt.fields.p,
 			}
-			got, got1 := e.ParseResponse(tt.args.data)
+			got, got1 := z.ParseResponse(tt.args.data)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ParseResponse() got = %s, want %v", got, tt.want)
 			}
 			if got1 != tt.want1 {
 				t.Errorf("ParseResponse() got1 = %v, want %v", got1, tt.want1)
-			}
-			if e.fq.FromBlock != tt.expectedFromBlock {
-				t.Errorf("FromBlock = %s, expected %s", e.fq.FromBlock, tt.expectedFromBlock)
-			}
-		})
-	}
-}
-
-func Test_XXXXXfilterQuery_toMapInterface(t *testing.T) {
-	type fields struct {
-		BlockHash *common.Hash
-		FromBlock string
-		ToBlock   string
-		Addresses []common.Address
-		Topics    [][]common.Hash
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		want    map[string]interface{}
-		wantErr bool
-	}{
-		{
-			"empty toBlock becomes latest",
-			fields{},
-			map[string]interface{}{
-				"address":   []common.Address{},
-				"topics":    [][]common.Hash{},
-				"fromBlock": "0x0",
-				"toBlock":   "latest",
-			},
-			false,
-		},
-		{
-			"uses non-empty toBlock",
-			fields{ToBlock: "0x1"},
-			map[string]interface{}{
-				"address":   []common.Address{},
-				"topics":    [][]common.Hash{},
-				"fromBlock": "0x0",
-				"toBlock":   "0x1",
-			},
-			false,
-		},
-		{
-			"empty fromBlock becomes 0x0",
-			fields{},
-			map[string]interface{}{
-				"address":   []common.Address{},
-				"topics":    [][]common.Hash{},
-				"fromBlock": "0x0",
-				"toBlock":   "latest",
-			},
-			false,
-		},
-		{
-			"uses non-empty fromBlock",
-			fields{FromBlock: "0x1"},
-			map[string]interface{}{
-				"address":   []common.Address{},
-				"topics":    [][]common.Hash{},
-				"fromBlock": "0x1",
-				"toBlock":   "latest",
-			},
-			false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			q := filterQuery{
-				BlockHash: tt.fields.BlockHash,
-				FromBlock: tt.fields.FromBlock,
-				ToBlock:   tt.fields.ToBlock,
-				Addresses: tt.fields.Addresses,
-				Topics:    tt.fields.Topics,
-			}
-			got, err := q.toMapInterface()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("toMapInterface() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			mapInterface, ok := got.(map[string]interface{})
-			require.True(t, ok)
-			keys := []string{"fromBlock", "toBlock"}
-			for _, key := range keys {
-				assert.Equal(t, mapInterface[key], tt.want[key])
 			}
 		})
 	}

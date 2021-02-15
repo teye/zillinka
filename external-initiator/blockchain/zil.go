@@ -2,12 +2,6 @@ package blockchain
 
 import (
 	"encoding/json"
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/common"
-	"math/big"
-
-	"github.com/Zilliqa/gozilliqa-sdk/account/account"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/smartcontractkit/chainlink/core/logger"
 	"github.com/smartcontractkit/external-initiator/store"
 	"github.com/smartcontractkit/external-initiator/subscriber"
@@ -15,78 +9,142 @@ import (
 
 const ZIL = "zilliqa"
 
+type zilFilterQuery struct {
+	ServiceName string
+	Addresses   []string
+}
+
 // The zilManager implements the subscriber.JsonManager interface and allows
 // for interacting with ZIL nodes over RPC or WS.
 type zilManager struct {
-	fq *filterQuery
+	fq *zilFilterQuery
 	p  subscriber.Type
+}
+
+/*
+Example query from: https://dev.zilliqa.com/docs/dev/dev-tools-websockets/#subscribe-event-log
+
+{
+  "query":"EventLog",
+  "addresses":[
+    "0x0000000000000000000000000000000000000000",
+    "0x1111111111111111111111111111111111111111"
+  ]
+}
+*/
+type ZilEventLogQueryRequest struct {
+	Query     string   `json:"query"`
+	Addresses []string `json:"addresses"`
+}
+
+/*
+Example response from:
+{
+   "type": "Notification",
+   "values": [
+      {
+         "query": "EventLog",
+         "value": [
+            {
+               "address": "afccafdc1ce8249cec35a0b432e329ce1bfac179",
+               "event_logs": [
+                  {
+                     "_eventname": "request",
+                     "params": [
+                        {
+                           "type": "String",
+                           "value": "TEST",
+                           "vname": "oracleId"
+                        },
+                        {
+                           "type": "Uint32",
+                           "value": "0",
+                           "vname": "requestId"
+                        },
+                        {
+                           "type": "ByStr20",
+                           "value": "0x1a8ba23182e4686fb8121a310111d03b55c91b46",
+                           "vname": "initiator"
+                        },
+                        {
+                           "type": "String",
+                           "value": "kaub",
+                           "vname": "argument"
+                        }
+                     ]
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}
+*/
+
+type ZilEventLogQueryResponse struct {
+	Type   string                  `json:"type"`
+	Values []ZilEventLogQueryValue `json:"values"`
+}
+
+type ZilEventLogQueryValue struct {
+	Query string `json:"query"`
+	Value []struct {
+		Address   string `json:"address"`
+		EventLogs []struct {
+			Eventname string `json:"_eventname"`
+			Params    []struct {
+				Type  string `json:"type"`
+				Value string `json:"value"`
+				Vname string `json:"vname"`
+			} `json:"params"`
+		} `json:"event_logs"`
+	} `json:"value"`
 }
 
 // createZilManager creates a new instance of zilManager with the provided
 // connection type and store.ZilSubscription config.
 func createZilManager(p subscriber.Type, config store.Subscription) zilManager {
-	var addresses []accounts.Account
-	for _, a := range config.Zilliqa.Addresses {
-		addresses = append(addresses, common.HexToAddress(a))
+	var addresses []string
+	for _, a := range config.Zilliqa.Accounts {
+		addresses = append(addresses, a)
 	}
-	var topics [][]common.Hash
-	var t []common.Hash
-	for _, value := range config.Zilliqa.Topics {
-		if len(value) < 1 {
-			continue
-		}
-		t = append(t, common.HexToHash(value))
-	}
-	topics = append(topics, t)
 	return zilManager{
-		fq: &filterQuery{
-			Addresses: addresses,
-			Topics:    topics,
+		fq: &zilFilterQuery{
+			ServiceName: config.Zilliqa.ServiceName,
+			Addresses:   addresses,
 		},
 		p: p,
 	}
 }
 
 // GetTriggerJson generates a JSON payload to the ZIL node
-// using the config in ethManager.
-//
-// If zilManager is using WebSocket:
-// Creates a new "zil_subscribe" subscription.
-//
-// If ethManager is using RPC:
-// Sends a "eth_getLogs" request.
-func (e zilManager) GetTriggerJson() []byte {
-	if e.p == subscriber.RPC && e.fq.FromBlock == "" {
-		e.fq.FromBlock = "latest"
+// using the config in zilManager.
+func (z zilManager) GetTriggerJson() []byte {
+	logger.Debugw("Getting trigger json", "ExpectsMock", ExpectsMock)
+
+	queryCall := ZilEventLogQueryRequest{
+		Query:     "EventLog",
+		Addresses: z.fq.Addresses,
 	}
-	filter, err := e.fq.toMapInterface()
-	if err != nil {
-		return nil
-	}
-	filterBytes, err := json.Marshal(filter)
-	if err != nil {
-		return nil
-	}
-	msg := JsonrpcMessage{
-		Version: "2.0",
-		ID:      json.RawMessage(`1`),
-	}
-	switch e.p {
+
+	logger.Debug("addresses: ", z.fq.Addresses)
+
+	switch z.p {
 	case subscriber.WS:
-		msg.Method = "zil_subscribe"
-		msg.Params = json.RawMessage(`["logs",` + string(filterBytes) + `]`)
-	case subscriber.RPC:
-		msg.Method = "zil_getLogs"
-		msg.Params = json.RawMessage(`[` + string(filterBytes) + `]`)
+		//logger.Debug("Addresses from filter query: ", queryCall.Addresses)
+		//if len(z.fq.Addresses) == 0 || z.fq.Addresses == nil {
+		//	return nil
+		//}
+		bytes, err := json.Marshal(queryCall)
+		if err != nil {
+			return nil
+		}
+		logger.Debug("Payload", string(bytes))
+		return bytes
 	default:
-		logger.Errorw(ErrSubscriberType.Error(), "type", e.p)
+		logger.Errorw(ErrSubscriberType.Error(), "type", z.p)
 		return nil
 	}
-	bytes, err := json.Marshal(msg)
-	if err != nil {
-		return nil
-	}
-	return bytes
 }
 
 // GetTestJson generates a JSON payload to test
@@ -97,19 +155,8 @@ func (e zilManager) GetTriggerJson() []byte {
 //
 // If zilManager is using RPC:
 // Sends a request to get the latest block number.
-func (e zilManager) GetTestJson() []byte {
-	if e.p == subscriber.RPC {
-		msg := JsonrpcMessage{
-			Version: "2.0",
-			ID:      json.RawMessage(`1`),
-			Method:  "zil_blockNumber",
-		}
-		bytes, err := json.Marshal(msg)
-		if err != nil {
-			return nil
-		}
-		return bytes
-	}
+func (z zilManager) GetTestJson() []byte {
+	logger.Debugw("Get test json", "ExpectsMock", ExpectsMock)
 	return nil
 }
 
@@ -119,106 +166,42 @@ func (e zilManager) GetTestJson() []byte {
 //
 // If zilManager is using WebSocket:
 // Returns nil.
-//
-// If zilManager is using RPC:
-// Attempts to parse the block number in the response.
-// If successful, stores the block number in ethManager.
-func (e zilManager) ParseTestResponse(data []byte) error {
-	if e.p == subscriber.RPC {
-		var msg JsonrpcMessage
-		if err := json.Unmarshal(data, &msg); err != nil {
-			return err
-		}
-		var res string
-		if err := json.Unmarshal(msg.Result, &res); err != nil {
-			return err
-		}
-		e.fq.FromBlock = res
-	}
+func (z zilManager) ParseTestResponse(data []byte) error {
+	logger.Debugw("Parsing test response", "ExpectsMock", ExpectsMock)
 	return nil
-}
-
-type zilSubscribeResponse struct {
-	Subscription string          `json:"subscription"`
-	Result       json.RawMessage `json:"result"`
-}
-
-type zilLogResponse struct {
-	LogIndex         string   `json:"logIndex"`
-	BlockNumber      string   `json:"blockNumber"`
-	BlockHash        string   `json:"blockHash"`
-	TransactionHash  string   `json:"transactionHash"`
-	TransactionIndex string   `json:"transactionIndex"`
-	Address          string   `json:"address"`
-	Data             string   `json:"data"`
-	Topics           []string `json:"topics"`
 }
 
 // ParseResponse parses the response from the
 // ZIL node, and returns a slice of subscriber.Events
 // and if the parsing was successful.
-//
-// If zilManager is using RPC:
-// If there are new events, update zilManager with
-// the latest block number it sees.
-func (e zilManager) ParseResponse(data []byte) ([]subscriber.Event, bool) {
+func (z zilManager) ParseResponse(data []byte) ([]subscriber.Event, bool) {
 	logger.Debugw("Parsing response", "ExpectsMock", ExpectsMock)
-	var msg JsonrpcMessage
+
+	var msg ZilEventLogQueryResponse
 	if err := json.Unmarshal(data, &msg); err != nil {
-		logger.Error("failed parsing msg: ", msg)
+		logger.Error("failed parsing message: ", string(data))
 		return nil, false
 	}
+
+	if msg.Type != "Notification" || len(msg.Values) == 0 {
+		logger.Error("invalid message: ", msg)
+		return nil, false
+	}
+
 	var events []subscriber.Event
-	switch e.p {
+
+	switch z.p {
 	case subscriber.WS:
-		var res zilSubscribeResponse
-		if err := json.Unmarshal(msg.Params, &res); err != nil {
-			logger.Error("unmarshal:", err)
-			return nil, false
-		}
-		var evt zilLogResponse
-		if err := json.Unmarshal(res.Result, &evt); err != nil {
-			logger.Error("unmarshal:", err)
-			return nil, false
-		}
-		event, err := json.Marshal(evt)
-		if err != nil {
-			logger.Error("marshal:", err)
-			return nil, false
-		}
-		events = append(events, event)
-	case subscriber.RPC:
-		var rawEvents []zilLogResponse
-		if err := json.Unmarshal(msg.Result, &rawEvents); err != nil {
-			return nil, false
-		}
-		for _, evt := range rawEvents {
-			event, err := json.Marshal(evt)
-			if err != nil {
-				continue
-			}
-			events = append(events, event)
-			// Check if we can update the "fromBlock" in the query,
-			// so we only get new events from blocks we haven't queried yet
-			curBlkn, err := hexutil.DecodeBig(evt.BlockNumber)
-			if err != nil {
-				continue
-			}
-			// Increment the block number by 1, since we want events from *after* this block number
-			curBlkn.Add(curBlkn, big.NewInt(1))
-			fromBlkn, err := hexutil.DecodeBig(e.fq.FromBlock)
-			if err != nil && !(e.fq.FromBlock == "latest" || e.fq.FromBlock == "") {
-				continue
-			}
-			// If our query "fromBlock" is "latest", or our current "fromBlock" is in the past compared to
-			// the last event we received, we want to update the query
-			if e.fq.FromBlock == "latest" || e.fq.FromBlock == "" || curBlkn.Cmp(fromBlkn) > 0 {
-				e.fq.FromBlock = hexutil.EncodeBig(curBlkn)
+		for _, v := range msg.Values {
+			event, err := json.Marshal(v)
+			if err == nil {
+				events = append(events, event)
 			}
 		}
 	default:
-		logger.Errorw(ErrSubscriberType.Error(), "type", e.p)
+		logger.Errorw(ErrSubscriberType.Error(), "type", z.p)
 		return nil, false
 	}
+
 	return events, true
 }

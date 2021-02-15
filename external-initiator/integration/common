@@ -9,6 +9,7 @@ source_mock_env() {
   source ./integration/mock-env/near.env
   source ./integration/mock-env/substrate.env
   source ./integration/mock-env/birita.env
+  source ./integration/mock-env/zilliqa.env
 }
 
 assert() {

@@ -12,6 +12,16 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/smartcontractkit/external-initiator/store"
 	"github.com/smartcontractkit/external-initiator/subscriber"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+var (
+	promLastSourcePing = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "ei_last_source_ping",
+		Help: "The timestamp of the last source of life from the source",
+	}, []string{"endpoint", "jobid"})
 )
 
 var (
@@ -34,6 +44,8 @@ var blockchains = []string{
 	CFX,
 	Keeper,
 	BIRITA,
+	Agoric,
+	ZIL,
 }
 
 type Params struct {
@@ -63,6 +75,10 @@ func CreateJsonManager(t subscriber.Type, sub store.Subscription) (subscriber.Js
 		return createNearManager(t, sub)
 	case CFX:
 		return createCfxManager(t, sub), nil
+	case Agoric:
+		return createAgoricManager(t, sub)
+	case ZIL:
+		return createZilManager(t, sub), nil
 	}
 
 	return nil, fmt.Errorf("unknown blockchain type %v for JSON manager", sub.Endpoint.Type)
@@ -157,6 +173,15 @@ func GetValidations(t string, params Params) []int {
 		return []int{
 			len(params.Addresses),
 		}
+	case Agoric:
+		return []int{
+			1,
+		}
+	case ZIL:
+		return []int{
+			len(params.Addresses),
+		//	len(params.ServiceName),
+		}
 	}
 
 	return nil
@@ -205,6 +230,13 @@ func CreateSubscription(sub *store.Subscription, params Params) {
 		sub.BSNIrita = store.BSNIritaSubscription{
 			Addresses:   params.Addresses,
 			ServiceName: params.ServiceName,
+		}
+	case Agoric:
+		sub.Agoric = store.AgoricSubscription{}
+	case ZIL:
+		sub.Zilliqa = store.ZilSubscription{
+			ServiceName: params.ServiceName,
+			Accounts: params.Addresses,
 		}
 	}
 }
