@@ -60,9 +60,8 @@ const createRequest = (input, callback) => {
   const use_testnet = false;
   const receiver_address = "0xf3f162e733ab3fd5cae72fc1b9eb89355c671b46"; // where smart contract is on chain
   const bc_setup = setup_chain_and_wallet(use_testnet); // which chain to use, fill wallet, etc
-  const priv_key = bc_setup.keys[0];
-  const pub_key = getPubKeyFromPrivateKey(priv_key);
-  bc_setup.zilliqa.wallet.addByPrivateKey(priv_key);
+  const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);
+  bc_setup.zilliqa.wallet.addByPrivateKey(bc_setup.privateKey);
   const receiver_sc = bc_setup.zilliqa.contracts.at(receiver_address); // load contract from chain
   const gas_price = units.toQa('5000', units.Units.Li);
   const gas_limit = Long.fromNumber(50000);
