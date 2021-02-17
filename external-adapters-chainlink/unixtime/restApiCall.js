@@ -3,25 +3,8 @@
   need node-js package:
   siclla/node-js> npm install isomorphic-fetch es6-promise
 */
+const {json_obj} = require("../commons/fetch_json.js");
 
-const fetch = require('isomorphic-fetch');
-const utils = require("./utils.js");
-
-async function json_obj(url, verbose = false)
-{
-  try {
-    const response = await fetch(url);
-    const json = await response.json();
-    const str = JSON.stringify(json);
-    if (verbose) {
-      console.log(`  JSON as string received:\n   ${str}`);
-    }
-    const obj = JSON.parse(str);
-    return obj;
-  } catch (err) {
-      throw Error("Could not get json from web API. err is: " + err);
-  }
-}
 
 // current time in unix time format, i.e. seconds since 00:00:00 UTC on 1 January 1970
 async function getUnixTime(verbose = false)

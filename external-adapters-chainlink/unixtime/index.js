@@ -12,7 +12,7 @@
 const { Requester, Validator } = require('@chainlink/external-adapter')
 const {  getPubKeyFromPrivateKey } = require('@zilliqa-js/crypto');
 const { BN, Long, units } = require('@zilliqa-js/util');
-const { setup_chain_and_wallet, call_contract} = require('./utils_zil.js')
+const { setup_chain_and_wallet, call_contract} = require('../commons/utils_zil.js')
 
 // Define custom error scenarios for the API.
 // Return true for the adapter to retry.

@@ -2,7 +2,7 @@
 var assert = require('assert');
 
 const {setup_chain_and_wallet} = require("../utils_zil.js");
-const {zilBalanceForKey} = require("../chkBalances.js");
+const {zilBalanceForKey} = require("../chk_balances.js");
 
 describe("Basic connection to blockchain and set up of accounts", function () {
 

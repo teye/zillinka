@@ -1,16 +1,7 @@
-/* test the calls to get data from web in JSON format */
 var assert = require('assert');
+const api = require("../restApiCall.js");
 
-const api = require("../restApiCalls.js");
-
-describe("Calls to fetch data from web through APIs in JSON format", function () {
-
-  it("should get unix time stamp for utc+01:00, i.e. Berlin area", async function() {
-    let uxt = 0;
-    uxt = await api.getUnixTime();
-    console.log(`   .. unix time is ${uxt}`);
-    assert(uxt > 0, `unix time still 0 after call to api`);
-  });
+describe("Calls to fetch unixt time from web through API in JSON format", function () {
 
   it("should get the Rhine pegel level yesterday at noon", async function () {
     const d = new Date(Date.now() - 86400000);
@@ -20,5 +11,4 @@ describe("Calls to fetch data from web through APIs in JSON format", function ()
     console.log(`   .. level of Rhine on ${yesterday} at noon is: ${level}`);
     assert(level > 0, `level still 0 after call to api`);
   });
-
 });
