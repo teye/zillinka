@@ -17,13 +17,17 @@ yarn start
 - currently none
 
 ## Call the external adapter/API server
-
+### on Linux
 ```bash
 curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { } }'
 ```
+### on Windows (in a power shell)
+```bash
+ Invoke-WebRequest "http://localhost:8080/" -Method POST -Headers @{"Content-Type"="application:json"} -body @{"id"=0; "data"={};}
+ ```
 
 ## Output
-
+### on Linux
 ```json
 Result:  {
   jobRunID: 0,
@@ -50,4 +54,29 @@ Result:  {
 }
 
 ```
-and `===> unix time is 1613578799` in the terminal where you executed ```yarn start```.
+### on Windows (result is in "Content")
+``
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"jobRunID":"1","data":{"abbreviation":"CET","client_ip":"85.5.161.167","datetime":"2021-02-19T10
+                    :01:23.058483+01:00","day_of_week":5,"day_of_year":50,"dst":false,"dst_from":null,"dst_offset":0,
+                    "dst_u...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Keep-Alive: timeout=5
+                    Content-Length: 424
+                    Content-Type: application/json; charset=utf-8
+                    Date: Fri, 19 Feb 2021 09:01:23 GMT
+                    ETag: W/"1a8-3wNQYP93DwBHerWgct...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Keep-Alive, timeout=5], [Content-Length, 424], [Content-Type,
+                    application/json; charset=utf-8]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 424
+``
+### and on both platforms in the terminal/shell where you have executed ```yarn start```
+
+`===> unix time is 1613578799` 
