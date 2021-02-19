@@ -12,7 +12,7 @@
 const { Requester, Validator } = require('@chainlink/external-adapter')
 const {  getPubKeyFromPrivateKey } = require('@zilliqa-js/crypto');
 const { BN, Long, units } = require('@zilliqa-js/util');
-const { setup_chain_and_wallet, call_contract} = require('./utils_zil.js')
+const { setup_chain_and_wallet, call_contract} = require('../commons/utils_zil.js')
 
 // Define custom error scenarios for the API.
 // Return true for the adapter to retry.
@@ -60,10 +60,9 @@ const createRequest = (input, callback) => {
   const use_testnet = false;
   const receiver_address = "0xf3f162e733ab3fd5cae72fc1b9eb89355c671b46"; // where smart contract is on chain
   const bc_setup = setup_chain_and_wallet(use_testnet); // which chain to use, fill wallet, etc
-  const priv_key = bc_setup.keys[0];
-  const pub_key = getPubKeyFromPrivateKey(priv_key);
-  bc_setup.zilliqa.wallet.addByPrivateKey(priv_key);
-  const receiver_sc = bc_setup.zilliqa.contracts.at(receiver_address);
+  const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);
+  bc_setup.zilliqa.wallet.addByPrivateKey(bc_setup.privateKey);
+  const receiver_sc = bc_setup.zilliqa.contracts.at(receiver_address); // load contract from chain
   const gas_price = units.toQa('5000', units.Units.Li);
   const gas_limit = Long.fromNumber(50000);
   const attempts = Long.fromNumber(10);
@@ -88,7 +87,7 @@ const createRequest = (input, callback) => {
         }
       });
     })
-    .then( uxt => { // set up the chain and wallet and load the contract from chain
+    .then( uxt => { // call the contract on chain to write the uxt on chain
       console.log(` ===> calling set() with the unix time ${uxt} to write to contract @  ${receiver_sc.address}`);
 
       const tx_settings = {   // use same settings for all transactions

@@ -1,5 +1,5 @@
 const assert = require('chai').assert
-const createRequest = require('../index_ethusd.js').createRequest
+const createRequest = require('../index.js').createRequest
 
 describe('createRequest', () => {
   const jobID = '1'
@@ -17,12 +17,6 @@ describe('createRequest', () => {
         createRequest(req.testData, (statusCode, data) => {
           assert.equal(statusCode, 200)
           assert.equal(data.jobRunID, jobID)
-          console.log(`   data.data is`);
-          console.log(data.data);
-          console.log(`   data.result is`);
-          console.log(data.result);
-          console.log(`data.data.result is`);
-          console.log(data.data.result);
           assert.isNotEmpty(data.data)
           assert.isAbove(Number(data.result), 0)
           assert.isAbove(Number(data.data.result), 0)
@@ -31,7 +25,7 @@ describe('createRequest', () => {
       })
     })
   })
-/*
+
   context('error calls', () => {
     const requests = [
       { name: 'empty body', testData: {} },
@@ -54,5 +48,4 @@ describe('createRequest', () => {
       })
     })
   })
-  */
 })

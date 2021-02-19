@@ -1,4 +1,3 @@
-const key = require("./keys.js"); // private keys
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { bytes } = require('@zilliqa-js/util');
 
@@ -10,18 +9,20 @@ function setup_chain_and_wallet(/*bool*/testnet)
   if (testnet) {
     zilliqa_chain = new Zilliqa('https://dev-api.zilliqa.com');
     chainId = 333;
-    privateKeys = key.ZilPayPrivateKeys; // use the ZilPay keys
+    privateKey =  // corresponding address: 0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8
+      'b74501e0d2d047e8aaa2353020b46f31d396f92d05843665573300995e3aed88';
   }
   else { // Isolated server / Simulated ENV
     zilliqa_chain = new Zilliqa('https://zilliqa-isolated-server.zilliqa.com/');
     chainId = 222;
-    privateKeys = key.isolatedServerPrivateKeys; // zilnet keys, activated on ide.zilliqa.com in SimulatedEnv
+    privateKey = // corresponding address: 0x2C18770C1Ff8dB2a2e66C02c482a9396202F994f
+    'a50a2e439e8d69f2376b473f246a8a3d158c475e89bb551be6a63c8f1b251f17';
   }
   const msgVersion = 1; // current msgVersion
   const VERSION = bytes.pack(chainId, msgVersion);
   return {"zilliqa": zilliqa_chain,
           "VERSION": VERSION,
-          "keys": privateKeys,
+          "privateKey": privateKey,
         };
 }
 

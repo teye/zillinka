@@ -29,9 +29,8 @@ describe("Oracle and OracleClient", function () {
 
   before( function()  { // runt this only once before all tests that follow
     setup = setup_chain_and_wallet(false);
-    const priv_key = setup.keys[0];
-    pub_key = getPubKeyFromPrivateKey(priv_key);
-    setup.zilliqa.wallet.addByPrivateKey(priv_key);
+    pub_key = getPubKeyFromPrivateKey(setup.privateKey);
+    setup.zilliqa.wallet.addByPrivateKey(setup.privateKey);
   });
 
   function str_upper_eq(/*String*/str0, /*String*/str1) {return (str0.toUpperCase() == str1.toUpperCase());} // case insensitive str comparison

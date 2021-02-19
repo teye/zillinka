@@ -22,9 +22,7 @@ const createRequest = (input, callback) => {
   const validator = new Validator(callback, input, customParams)
   const jobRunID = validator.validated.id
   const endpoint = validator.validated.data.endpoint || 'price'
-  // TODO: FMB Change the address to url from unix time api
-   const url = `https://min-api.cryptocompare.com/data/${endpoint}`
-  // const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
+  const url = `https://min-api.cryptocompare.com/data/${endpoint}` // TODO: FMB Change the address to url from unix time api
   const fsym = validator.validated.data.base.toUpperCase()
   const tsyms = validator.validated.data.quote.toUpperCase()
 
@@ -36,7 +34,7 @@ const createRequest = (input, callback) => {
   // This is where you would add method and headers
   // you can add method like GET or POST and add it to the config
   // The default is GET requests
-  // method = 'get'
+  // method = 'get' 
   // headers = 'headers.....'
   const config = {
     url,
@@ -51,7 +49,7 @@ const createRequest = (input, callback) => {
       // result key. This allows different adapters to be compatible with
       // one another.
       response.data.result = Requester.validateResultNumber(response.data, [tsyms])
-      // TODO: FMB Take the result and send it to Zilliqa oracle contract
+      // TODO: FMB Take the result and send it to Zilliqa oracle contract 
       callback(response.status, Requester.success(jobRunID, response))
     })
     .catch(error => {

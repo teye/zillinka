@@ -1,43 +1,4 @@
-/*
-  get data from web through rest apis providing it in JSON format
-  need node-js package:
-  siclla/node-js> npm install isomorphic-fetch es6-promise
-*/
-
-const fetch = require('isomorphic-fetch');
-const utils = require("./utils.js");
-
-async function json_obj(url, verbose = false)
-{
-  try {
-    const response = await fetch(url);
-    const json = await response.json();
-    const str = JSON.stringify(json);
-    if (verbose) {
-      console.log(`  JSON as string received:\n   ${str}`);
-    }
-    const obj = JSON.parse(str);
-    return obj;
-  } catch (err) {
-      throw Error("Could not get json from web API. err is: " + err);
-  }
-}
-
-// current time in unix time format, i.e. seconds since 00:00:00 UTC on 1 January 1970
-async function getUnixTime(verbose = false)
-{
-  try {
-    const url = "http://worldtimeapi.org/api/timezone/Europe/Berlin";
-    const obj = await json_obj(url, verbose);
-    const uxt = obj.unixtime;
-    if (verbose) {
-      console.log(`  .. unix time is: ${uxt}`);
-    }
-    return uxt;
-  } catch (err) {
-      throw Error("Could not get unix time through json from web API. err is: " + err);
-  }
-}
+const {json_obj} = require("../commons/fetch_json.js");
 
 // Rhine level at kaub station at noon (CET) for a given date in the format yyyy-mm-dd
 async function getRhineLevel(/*string*/target_date, verbose = false)
@@ -93,8 +54,6 @@ async function getRhineLevel(/*string*/target_date, verbose = false)
   }
 }
 
-exports.getUnixTime = getUnixTime;
 exports.getRhineLevel = getRhineLevel;
 
-//getUnixTime(true);
 //getRhineLevel("2021-02-04", true);
