@@ -5,9 +5,23 @@ Unix time is the number of seconds since  January 1st, 1970 at UTC, see https://
 Fetches the unix time for central Europe time zone from the api  
 "http://worldtimeapi.org/api/timezone/Europe/Berlin" (timezone for central Europe CEST).
 
-It writes the unix time back to a contract on the Zilliqa blockchain.
+It writes the unix time back to a contract on the Zilliqa blockchain. Run all commands below inside the subdirectory `unixtime`!
+## Install Locally
+Install dependencies:
 
-## start the service inside the subdirectory `unixtime`
+```bash
+yarn
+```
+
+## Test
+Run the local tests:
+
+```bash
+yarn test
+```
+## Start Service
+
+Start the service:
 ```bash
 yarn start
 ```
@@ -18,6 +32,7 @@ yarn start
 
 ## Call the external adapter/API server
 ### on Linux
+Make curl call inside the same subdirectory `unixtime` in a different terminal:
 ```bash
 curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { } }'
 ```
