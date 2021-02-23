@@ -1,3 +1,14 @@
+/* To run the curl request to get ethusd gasPrice
+[..]/ethusd/$ yarn start
+  yarn run v1.22.5
+  $ node app.js
+  Listening on port 8080!
+# in a different terminal
+
+[..]/ethusd/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "from": "ETH", "to": "USD" } }'
+  {"jobRunID":0,"data":{"USD":1471.47,"result":1471.47},"result":1471.47,"statusCode":200}
+*/
+
 const { Requester, Validator } = require('@chainlink/external-adapter')
 
 // Define custom error scenarios for the API.
@@ -34,7 +45,7 @@ const createRequest = (input, callback) => {
   // This is where you would add method and headers
   // you can add method like GET or POST and add it to the config
   // The default is GET requests
-  // method = 'get' 
+  // method = 'get'
   // headers = 'headers.....'
   const config = {
     url,
@@ -49,7 +60,7 @@ const createRequest = (input, callback) => {
       // result key. This allows different adapters to be compatible with
       // one another.
       response.data.result = Requester.validateResultNumber(response.data, [tsyms])
-      // TODO: FMB Take the result and send it to Zilliqa oracle contract 
+      // TODO: FMB Take the result and send it to Zilliqa oracle contract
       callback(response.status, Requester.success(jobRunID, response))
     })
     .catch(error => {
