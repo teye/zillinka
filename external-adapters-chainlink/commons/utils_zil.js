@@ -11,12 +11,22 @@ function setup_chain_and_wallet(/*bool*/testnet)
     chainId = 333;
     privateKey =  // corresponding address: 0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8
       'b74501e0d2d047e8aaa2353020b46f31d396f92d05843665573300995e3aed88';
+    addresses = {
+      "Oracle": '0xdabda0673fbe6c2719598a2f3c62fa100273304f',
+      "OracleClient": '0xd88b98d2be14118a112b84ba4b7238753b56335b',
+      "SimpleReceiver": '0x5670a35df49e97fb574beedfcd83ff6edff51f67',
+    };
   }
   else { // Isolated server / Simulated ENV
     zilliqa_chain = new Zilliqa('https://zilliqa-isolated-server.zilliqa.com/');
     chainId = 222;
     privateKey = // corresponding address: 0x2C18770C1Ff8dB2a2e66C02c482a9396202F994f
     'a50a2e439e8d69f2376b473f246a8a3d158c475e89bb551be6a63c8f1b251f17';
+    addresses = {
+      "Oracle": '0xafccafdc1ce8249cec35a0b432e329ce1bfac179',
+      "OracleClient": '',
+      "SimpleReceiver": '',
+    };
   }
   const msgVersion = 1; // current msgVersion
   const VERSION = bytes.pack(chainId, msgVersion);
