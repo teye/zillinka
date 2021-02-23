@@ -21,47 +21,29 @@ const customError = (data) => {
 }
 
 // Define custom parameters to be used by the adapter.
-// Extra parameters can be stated in the extra object,
-// with a Boolean value indicating whether or not they
-// should be required.
 const customParams = {
-  // FMB set endpoint to  Berlin time zone in url below (fix)
+  reqID: ['requestID', 'rID']
 }
 
 const createRequest = (input, callback) => {
-  // The Validator helps you validate the Chainlink request data
   const validator = new Validator(callback, input, customParams)
   const jobRunID = validator.validated.id
-  //const endpoint = validator.validated.data.endpoint || 'price'
-  // FMB Change the address to url from unix time api
   const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
-  // FMB no need for paameters for this request
-//  const fsym = validator.validated.data.base.toUpperCase()
-//  const tsyms = validator.validated.data.quote.toUpperCase()
+  const reqID = validator.validated.data.reqID
+  const params = { reqID }
 
-  const params = {
-    // FMB no params needed, ural has no '?p1=P1&p2=P2&...'
-//    fsym,
-//    tsyms
-  }
-
-  // This is where you would add method and headers
-  // you can add method like GET or POST and add it to the config
-  // The default is GET requests
-  // method = 'get'
-  // headers = 'headers.....'
   const config = {
     url,
     params
   }
 
-  // FMBzilliqa bc stuff : get from curl parameter later
+  // FMB zilliqa bc stuff
   const use_testnet = false;
-  const receiver_address = "0xf3f162e733ab3fd5cae72fc1b9eb89355c671b46"; // where smart contract is on chain
   const bc_setup = setup_chain_and_wallet(use_testnet); // which chain to use, fill wallet, etc
+  const receiver_address = bc_setup.addresses.SimpleReceiver;
   const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);
   bc_setup.zilliqa.wallet.addByPrivateKey(bc_setup.privateKey);
-  const receiver_sc = bc_setup.zilliqa.contracts.at(receiver_address); // load contract from chain
+  const receiver_sc = bc_setup.zilliqa.contracts.at(receiver_address);
   const gas_price = units.toQa('5000', units.Units.Li);
   const gas_limit = Long.fromNumber(50000);
   const attempts = Long.fromNumber(10);
@@ -86,36 +68,46 @@ const createRequest = (input, callback) => {
         }
       });
     })
-    .then( uxt => { // call the contract on chain to write the uxt on chain
-      console.log(` ===> calling set() with the unix time ${uxt} to write to contract @  ${receiver_sc.address}`);
-
+    .then( uxt => { // call the contract on chain to write the uxt on chain:
+      // transition set_data(data: Uint32, request_id: Uint32)
+      const req_id = config.params.reqID;
+      console.log(` ===> calling set() with unix time ${uxt} to write to contract @  ${receiver_sc.address}`);
       const tx_settings = {   // use same settings for all transactions
         "gas_price": units.toQa('5000', units.Units.Li),
         "gas_limit": Long.fromNumber(50000),
-        "attempts": Long.fromNumber(10),
+        "attempts": Long.fromNumber(25),
       };
-      const args = [ { vname: 'data',  type: 'Uint128', value: uxt.toString() } ];
+      const args = [
+        { vname: 'data',  type: 'Uint128', value: uxt.toString() },
+      ];
       return call_contract(receiver_sc, 'set', args, new BN(0), pub_key, bc_setup, tx_settings);
-/*      return receiver_sc.call(
-        'set',
-         args,
-        { version: bc_setup.VERSION, amount: new BN(0), gasPrice: tx_settings.gas_price,
-          gasLimit: tx_settings.gas_limit, pubKey: pub_key, },
-          tx_settings.attempts, 1000, false,
-      );
-*/
     })
     .then( (tx) => {
-      if (tx.receipt.success) {
-        console.log(` ====> tx successful: querying state`);
-        return receiver_sc.getState();
-      }
-      else {
-        console.log(` ====> tx NOT successful`);
-      }
+      return new Promise(function(resolve, reject) {
+        function r(msg) {
+
+        }
+        if (typeof tx === 'undefined' ||tx === null) {
+          console.log(` ====> tx NOT successful`);
+          reject('tx is not defined or null');
+        }
+        else if (!tx.receipt.success) {
+          console.log(` ====> tx NOT successful: tx = `);
+          console.log(tx);
+          console.log('errors');
+          console.log(tx.receipt.errors);
+          console.log('exceptions');
+          console.log(tx.receipt.exceptions);
+          reject(`tx.receipt.success is ${tx.receipt.success}`);
+        }
+        else {
+          console.log(` ====> tx successful: querying state`);
+          resolve(receiver_sc.getState());
+        }
+      });
     })
     .then( (state) => {
-      console.log(" ====> state of contract after having called set(.) is: ")
+      console.log(" ====> state of contract after having called set_data(.) is: ")
       console.log(state)
     })
     .then( )

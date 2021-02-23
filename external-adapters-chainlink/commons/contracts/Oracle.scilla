@@ -12,7 +12,7 @@ scilla_version 0
 
 (*import ListUtils IntUtils BoolUtils *)
 
-library Oracle0
+library Oracle
 
 let zero128 = Uint128 0 (* used for zero amounts *)
 
@@ -34,7 +34,7 @@ let one_msg = (* Wrap single message into singleton list *)
     let nil_msg = Nil {Message} in
     Cons {Message} msg nil_msg
 
-contract Oracle0
+contract Oracle
 (oracle_id: String)
 
 field next_request_id: Uint32 = Uint32 0 (* keep track of requests by increasig the counter *)
@@ -66,7 +66,7 @@ end
 (* @notice: give the oracle some (off-chain) data               *)
 (* @param:  data : the data (e.g. a gauge level)                *)
 (* @param:  req_id: the (for this oracle) unique request id     *)
-transition set_data(data: Uint32, request_id: Uint32)
+transition set_data(data: Uint128, request_id: Uint32)
   ev = {_eventname : "set_data"; oracleId: oracle_id; requestId: request_id; data: data};
   event ev;
   job_o <- data_requests[request_id];

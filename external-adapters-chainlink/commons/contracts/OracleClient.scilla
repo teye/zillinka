@@ -25,7 +25,7 @@ contract OracleClient
 (* addresses of different oracles, identified by a string *)
 field oracles : Map String ByStr20 = Emp String ByStr20
 (* store all data received from all oracles *)
-field all_data : Map String (Map String Uint32) = Emp String (Map String Uint32)(* m[oracle_id][argument] = level *)
+field all_data : Map String (Map String Uint128) = Emp String (Map String Uint128)(* m[oracle_id][argument] = data *)
 
 (* @notice: request data from an oracle                 *)
 (* @param:  oracle_id : string to identify the oracle   *)
@@ -80,7 +80,7 @@ end
 (* @param:  oracle_id : string to identify an oracle                            *)
 (* @param:  data : the value of the data requested                              *)
 (* @param:  argument : string that was sent when requesting a data              *)
-transition callback_data(oracle_id: String, data: Uint32, argument: String)
+transition callback_data(oracle_id: String, data: Uint128, argument: String)
   all_data[oracle_id][argument] := data; (* store and emit *)
   ev = {_eventname : "callback_data"; oracleId: oracle_id; argument: argument; data: data};
   event ev

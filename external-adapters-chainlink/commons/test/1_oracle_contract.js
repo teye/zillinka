@@ -36,7 +36,7 @@ describe("Oracle and OracleClient", function () {
   function str_upper_eq(/*String*/str0, /*String*/str1) {return (str0.toUpperCase() == str1.toUpperCase());} // case insensitive str comparison
 
   it("should deploy the Oracle, its address should not be empty thereafter and have the correct ID in the init variable", async function() {
-    const sc_string = StringFromFile("contracts/Oracle0.scilla"); // read scilla contract
+    const sc_string = StringFromFile("contracts/Oracle.scilla"); // read scilla contract
     const init = [ // initial parameters for contract at deployment
       { vname: '_scilla_version', type: 'Uint32',   value: '0', },
       { vname: 'oracle_id',       type: 'String',  value: oracle_id, },
@@ -104,7 +104,7 @@ describe("Oracle and OracleClient", function () {
     // calling: transition set_data(data: Uint32, request_id: Uint32)
     const data_test_value = 100;
     const args = [
-      { vname: 'data',        type: 'Uint32', value: data_test_value.toString(), },
+      { vname: 'data',        type: 'Uint128', value: data_test_value.toString(), },
       { vname: 'request_id',  type: 'Uint32', value: data_req_id.toString(), },
     ];
     const tx = await call_contract(oracle_sc, 'set_data', args, new BN(0), pub_key, setup, tx_settings);
