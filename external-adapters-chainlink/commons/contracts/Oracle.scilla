@@ -16,17 +16,17 @@ library Oracle
 
 let zero128 = Uint128 0 (* used for zero amounts *)
 
-type DataRequest = (* requestor, argument *)
-  | DataRequest of ByStr20 String
+type DataRequest = (* requestor, argument, [result] *)
+  | DataRequest of ByStr20 String (Option Uint128)
 
 let get_requestor = fun(request: DataRequest) =>
   match request with
-  | DataRequest requestor argument => requestor
+  | DataRequest requestor argument result_o => requestor
   end
 
 let get_argument = fun(request: DataRequest) =>
   match request with
-  | DataRequest requestor argument => argument
+  | DataRequest requestor argument result_o => argument
   end
 
 let one_msg = (* Wrap single message into singleton list *)
@@ -38,14 +38,16 @@ contract Oracle
 (oracle_id: String)
 
 field next_request_id: Uint32 = Uint32 0 (* keep track of requests by increasig the counter *)
-field data_requests: Map Uint32 DataRequest = Emp Uint32 DataRequest (* m[req_id] = (requestor, argument) *)
+field data_requests: Map Uint32 DataRequest = Emp Uint32 DataRequest (* m[req_id] = (requestor, argument, [result]) *)
+
 
 
 (* @notice: request data from an oracle                 *)
 (* @param:  arg: any arguments needed in a string       *)
 transition request(arg: String)
   request_id <- next_request_id;
-  request = DataRequest _sender arg;
+  no_result = None {Uint128};
+  request = DataRequest _sender arg no_result;
   data_requests[request_id] := request;
   one32 = Uint32 1;
   next_id = builtin add request_id one32;
@@ -69,14 +71,17 @@ end
 transition set_data(data: Uint128, request_id: Uint32)
   ev = {_eventname : "set_data"; oracleId: oracle_id; requestId: request_id; data: data};
   event ev;
-  job_o <- data_requests[request_id];
-  match job_o with
+  req_o <- data_requests[request_id];
+  match req_o with
   |None =>
     err = {_exception: "set_data: request does not exist in map"; oracleId: oracle_id; requestId: request_id};
     throw err
   |Some request => (* emit and callback the requestor with the data *)
     to = get_requestor request;
     arg = get_argument request;
+    res_o = Some {Uint128} data;
+    request_with_result = DataRequest to arg res_o;
+    data_requests[request_id] := request_with_result; (* store in state, mostly for testing *)
     msg = {_tag: "callback_data"; _recipient: to; _amount: zero128 ; oracle_id: oracle_id; data: data; argument: arg};
     msgs = one_msg msg;
     send msgs
