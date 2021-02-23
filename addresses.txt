@@ -1,0 +1,15 @@
+blockchain addresses of deployed scilla contracts (see external-adapters-chainlink/contracts/)
+
+
+contract Oracle0 (Oracle contract: Oracle0.scilla)
+----------------
+isolated server: 0x3b5b86a9644de8e4ee4326bd7ee25f164b1c1f4d
+Testnet: 0xafccafdc1ce8249cec35a0b432e329ce1bfac179
+
+
+contract OrcleClient (to test calling the oracle contract: OracleClient.scilla)
+isolated Server: 0xa9d289daec463750dbcf671c69fe68a7a02197d2
+
+contract SimpleReceiver (to test writing back to b/c: SimpleReceiver.scilla)
+------------------------
+isolated server: 0xf3f162e733ab3fd5cae72fc1b9eb89355c671b46
