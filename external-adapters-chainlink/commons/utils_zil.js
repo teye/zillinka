@@ -20,7 +20,7 @@ function setup_chain_and_wallet(/*bool*/testnet)
     chainId = 222;
     privateKey = // corresponding address: 0x2C18770C1Ff8dB2a2e66C02c482a9396202F994f
     'a50a2e439e8d69f2376b473f246a8a3d158c475e89bb551be6a63c8f1b251f17';
-    oracle_addr = '0xd60e40d8cd52f4dac6179a83c29cfd9e913be905';
+    oracle_addr = '0x0e011a6c233653ea85654a00a357418fca569159';
     oracle_client_addr = '0xbe5de086e5aaea8272149214abccbfc6256d0e3b';
     simple_receiver_addr = '0x5670a35df49e97fb574beedfcd83ff6edff51f67';
   }

@@ -6,7 +6,7 @@ describe('createRequest', () => {
 
   context('successful calls', () => {
     const requests = [
-      { name: 'get uxt', testData: { data: {"rID": 2 } } },
+      { name: 'get uxt', testData: { data: {"rID": 0 } } },
     ]
 
     requests.forEach(req => {
