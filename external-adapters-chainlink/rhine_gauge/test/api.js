@@ -1,7 +1,7 @@
 var assert = require('assert');
 const api = require("../restApiCall.js");
 
-describe("Calls to fetch unixt time from web through API in JSON format", function () {
+describe("Calls to fetch rhine pegel level web through API in JSON format", function () {
 
   it("should get the Rhine pegel level yesterday at noon", async function () {
     const d = new Date(Date.now() - 86400000);
