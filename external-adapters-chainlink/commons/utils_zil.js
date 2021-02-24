@@ -11,18 +11,16 @@ function setup_chain_and_wallet(/*bool*/testnet)
     chainId = 333;
     privateKey =  // corresponding address: 0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8
       'b74501e0d2d047e8aaa2353020b46f31d396f92d05843665573300995e3aed88';
-      oracle_addr = '0xafccafdc1ce8249cec35a0b432e329ce1bfac179';
-      oracle_client_addr = '';
-      simple_receiver_addr = '';
+    uxt_oracle_addr = '';
+    uxt_oracle_client_addr = '';
   }
   else { // Isolated server / Simulated ENV
     zilliqa_chain = new Zilliqa('https://zilliqa-isolated-server.zilliqa.com/');
     chainId = 222;
     privateKey = // corresponding address: 0x2C18770C1Ff8dB2a2e66C02c482a9396202F994f
     'a50a2e439e8d69f2376b473f246a8a3d158c475e89bb551be6a63c8f1b251f17';
-    oracle_addr = '0x0e011a6c233653ea85654a00a357418fca569159';
-    oracle_client_addr = '0xbe5de086e5aaea8272149214abccbfc6256d0e3b';
-    simple_receiver_addr = '0x5670a35df49e97fb574beedfcd83ff6edff51f67';
+    uxt_oracle_addr = '0xaea0670f897bd8a48fe74c32d1d351f34314f014';
+    uxt_oracle_client_addr = '0x65ee30347fe6bcb3e3020fa352970720426e326f';
   }
   const msgVersion = 1; // current msgVersion
   const VERSION = bytes.pack(chainId, msgVersion);
@@ -30,9 +28,8 @@ function setup_chain_and_wallet(/*bool*/testnet)
           "VERSION": VERSION,
           "privateKey": privateKey,
           "addresses": {
-                "Oracle": oracle_addr,
-                "OracleClient": oracle_client_addr,
-                "SimpleReceiver": simple_receiver_addr,
+                "UnixTimeOracle": uxt_oracle_addr,
+                "UnixTimeOracleClient": uxt_oracle_client_addr,
               },
             };
 }

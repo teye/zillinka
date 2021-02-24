@@ -1,0 +1,71 @@
+scilla_version 0
+
+(***********************************************************************************)
+(* Oracle: serves client requests through transition: request()                    *)
+(*         emits an event with the request details, stores the request internally  *)
+(*         by assigning it a request_id storing the initiator (the client's addr)  *)
+(*         receives data through set_data(data: Uint128, request_id: Uint32),      *)
+(*         stores it internally (mostly for testing purpose) under the request_id  *)
+(*         and sends it back to the client by sending a messsage to its callback:  *)
+(*           callback_data(data: Uint32)                                           *)
+(***********************************************************************************)
+
+(*import ListUtils IntUtils BoolUtils *)
+
+library Oracle
+
+let zero128 = Uint128 0 (* used for zero amounts *)
+
+type DataRequest = (* requestor, [result] *)
+  | DataRequest of ByStr20 (Option Uint128)
+
+let get_requestor = fun(request: DataRequest) =>
+  match request with
+  | DataRequest requestor result_o => requestor
+  end
+
+let one_msg = (* Wrap single message into singleton list *)
+  fun (msg : Message) =>
+    let nil_msg = Nil {Message} in
+    Cons {Message} msg nil_msg
+
+contract Oracle
+()
+
+field next_request_id: Uint32 = Uint32 0 (* keep track of requests by increasig the counter *)
+field data_requests: Map Uint32 DataRequest = Emp Uint32 DataRequest (* m[req_id] = (requestor, [result]) *)
+
+
+(* @notice: request data from an oracle                 *)
+transition request()
+  request_id <- next_request_id;
+  no_result = None {Uint128};
+  request = DataRequest _sender no_result;
+  data_requests[request_id] := request;
+  one32 = Uint32 1;
+  next_id = builtin add request_id one32;
+  next_request_id := next_id;
+  ev = {_eventname : "request"; requestId: request_id; initiator: _sender};
+  event ev
+end
+
+
+(* @notice: give the oracle some (off-chain) data               *)
+(* @param:  data : the data (e.g. a gauge level)                *)
+(* @param:  req_id: the (for this oracle) unique request id     *)
+transition set_data(data: Uint128, request_id: Uint32)
+  req_o <- data_requests[request_id];
+  match req_o with
+  |None =>
+    err = {_exception: "set_data: request does not exist in map"; requestId: request_id};
+    throw err
+  |Some request => (* emit and callback the requestor with the data *)
+    to = get_requestor request;
+    res_o = Some {Uint128} data;
+    request_with_result = DataRequest to res_o;
+    data_requests[request_id] := request_with_result; (* store in state, mostly for testing *)
+    msg = {_tag: "callback_data"; _recipient: to; _amount: zero128; data: data};
+    msgs = one_msg msg;
+    send msgs
+  end (* reg_o *)
+end

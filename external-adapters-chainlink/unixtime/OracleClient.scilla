@@ -1,0 +1,52 @@
+scilla_version 0
+
+(**********************************************************************************)
+(* OracleClient:                                                                  *)
+(*  request data from the Oracle and receive it back in a callback:               *)
+(*    callback_data(data: Uint32)                                                 *)
+(*  The oracle is a smart contracts on a certain address,                         *)
+(*  offering a transition: data_request()                                         *)
+(**********************************************************************************)
+
+library OracleClient
+
+let zero128 = Uint128 0 (* used for zero amounts *)
+
+let one_msg = (* Wrap single message into singleton list *)
+  fun (msg : Message) =>
+    let nil_msg = Nil {Message} in
+    Cons {Message} msg nil_msg
+
+contract OracleClient
+(oracle_address_at_deployment: ByStr20)
+
+(* addresses of the oracle *)
+field oracle_address : ByStr20 = oracle_address_at_deployment
+(* store all data received from the oracle, newest data in front *)
+field all_data : List Uint128 = Nil {Uint128} (* store all data received *)
+
+(* @notice: request data from the oracle                 *)
+transition data_request()
+  to <- oracle_address;
+  msg = {_tag: "request"; _recipient: to; _amount: zero128};
+  msgs = one_msg msg;
+  send msgs
+end
+
+(* @notice: change the oracle addresse                  *)
+(* @param:  new_address : oracle contract's address     *)
+transition change_oracle(new_address : ByStr20)
+  oracle_address := new_address;
+  ev = {_eventname: "change_oracle"; new_oracle_address: new_address};
+  event ev
+end
+
+(* @notice: callback function that oracle calls with the data when asked for it *)
+(* @param:  data : the value of the data requested                              *)
+transition callback_data(data: Uint128)
+  current_data <- all_data;
+  new_data = Cons {Uint128} data current_data;
+  all_data := new_data;
+  ev = {_eventname : "callback_data"; data_received: data};
+  event ev
+end
