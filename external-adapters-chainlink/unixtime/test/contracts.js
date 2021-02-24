@@ -10,7 +10,7 @@ const {
 const { BN, Long, units } = require('@zilliqa-js/util');
 const {  getPubKeyFromPrivateKey} = require('@zilliqa-js/crypto');
 
-describe("Oracle and OracleClient", function () {
+describe("Oracle and OracleClient for Unix Time", function () {
 
   const tx_settings = {   // use same settings for all transactions
     "gas_price": units.toQa('5000', units.Units.Li),
@@ -68,9 +68,10 @@ describe("Oracle and OracleClient", function () {
     assert(tx_rec.success,'calling data_request not successful');
     // was the request received by the oracle and did it emit the correct event?
     //  ev = {_eventname : "request"; requestId: request_id; initiator: _sender};
-    assert(tx_rec.event_logs[0]._eventname == 'request');
     console.log('  ... > event emitted by the oracle when receiving a request for data');
     console.log(tx_rec.event_logs[0]);
+    const name = tx_rec.event_logs[0]._eventname;
+    assert.strictEqual(name, 'request', `event name ${name} is wrong`);
     p = tx_rec.event_logs[0].params;
     data_req_id = p[0].value
     console.log(`  ... > data request with id ${data_req_id} created in oracle`);

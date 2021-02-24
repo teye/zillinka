@@ -1,12 +1,12 @@
 scilla_version 0
 
-(**********************************************************************************)
-(* OracleClient:                                                                  *)
-(*  request data from the Oracle and receive it back in a callback:               *)
-(*    callback_data(data: Uint32)                                                 *)
-(*  The oracle is a smart contracts on a certain address,                         *)
-(*  offering a transition: data_request()                                         *)
-(**********************************************************************************)
+(************************************************************************)
+(* OracleClient:                                                        *)
+(*  request data from the Oracle and receive it back in a callback:     *)
+(*    callback_data(data: Uint128)                                      *)
+(*  The oracle is a smart contracts on a certain address,               *)
+(*  offering a transition: data_request()                               *)
+(************************************************************************)
 
 library OracleClient
 
