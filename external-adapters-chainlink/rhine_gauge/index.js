@@ -1,11 +1,12 @@
 /* To run the curl request to get Rhine Pegel level at Kaub station at noon of a given date
-[..]/unixtime/$ yarn start
+[..]/rhine_gauge/$ yarn start
   yarn run v1.22.5
   $ node app.js
   Listening on port 8080!
 # in a different terminal
-[..]/unixtime/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "reqID": 0, "dateString": "2020-02-23"} }'
-  {"jobRunID":0,"data":{"abbreviation":"CET","client_ip":"85.5.161.167","datetime":"2021-02-12T12:07:21.611838+01:00","day_of_week":5,"day_of_year":43,"dst":false,"dst_from":null,"dst_offset":0,"dst_until":null,"raw_offset":3600,"timezone":"Europe/Berlin","unixtime":1613128041,"utc_datetime":"2021-02-12T11:07:21.611838+00:00","utc_offset":"+01:00","week_number":6,"result":1613128041},"result":1613128041,"statusCode":200}drbee@XPS-13-7390-cerchia:~/dev/gh-zillinka/external-adapter-chainlink-part$
+[..]/rhine_gauge/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "reqID": 0, "dateString": "2021-02-23"} }'
+  {"jobRunID":0,"data":[{"timestamp":"2021-02-23T12:00:00+01:00","value":256}, ...,
+  ....,{"timestamp":"2021-02-24T13:45:00+01:00","value":247}],"result":256,"statusCode":200}
 */
 
 const { Requester, Validator } = require('@chainlink/external-adapter')
@@ -22,15 +23,53 @@ const customError = (data) => {
 
 // Define custom parameters to be used by the adapter.
 const customParams = {
-  reqID: ['requestID', 'reqID', 'rID'] // the id assigned by the oracle contract for this current request
+  reqID: ['requestID', 'reqID', 'rID'], // the id assigned by the oracle contract for this current request
+  ds: ['dateString', 'ds'] // the target date for the gauge level at noon in format "yyyy-mm-dd"
+}
+
+// extract specific entry from JSON object received as response for a given date and a given time
+function findValueAtTime(obj, target_date, target_time)
+{
+  let v = -1;
+  let date_string = '';
+  try {
+    obj.every( (item, index, array) => {
+      const date_time = item.timestamp;
+      const ts = date_time.substr(date_time.length - target_time.length);
+      date_string = date_time.substr(0, 10);
+      if (date_string == target_date && ts == target_time) {
+        v = item.value;
+        return false;
+      }
+      else {
+        return true;
+      }
+    });
+    if (v>0) {
+      return {ds: date_string, value: v};
+    }
+    else { // no value has been found for target time
+      throw Error(`no value found for target time ${target_time} on date ${target_date} (is it past noon already?`);
+    }
+  } catch (err) {
+    throw err;
+  }
 }
 
 const createRequest = (input, callback) => {
   const validator = new Validator(callback, input, customParams)
   const jobRunID = validator.validated.id
-  const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
+  const date = validator.validated.data.ds
+  const station_id = "1d26e504-7f9e-480a-b52c-5932be6549ab"; // Kaub
+  const time = "T12:00:00+01:00"; // noon at UTC + 1h, i.e. central europe
+  const url =
+    "https://www.pegelonline.wsv.de/webservices/rest-api/v2/stations/"
+    + station_id
+    + "/W/measurements.json?start="
+    + date
+    + time;
   const reqID = validator.validated.data.reqID
-  const params = { reqID }
+  const params = { reqID, date, time }
 
   const config = {
     url,
@@ -53,22 +92,22 @@ const createRequest = (input, callback) => {
   // or connection failure
   Requester.request(config, customError)
     .then(response => {
-      response.data.result = Requester.validateResultNumber(response.data, ["unixtime"]) // FMB: extract unixtime from json
+      const entry = findValueAtTime(response.data, params.date, params.time);
+      response.data.result = Requester.validateResultNumber(entry, ["value"]);
       callback(response.status, Requester.success(jobRunID, response));
-
-      // FMB: Take the result and send it to Zilliqa oracle contract
-      const uxt = response.data.result;
-      console.log(` ===> unix time is ${uxt}`);
+      const level = response.data.result;
+      console.log(` ===> Rhine level on ${params.date} at noon is ${level}`);
       return new Promise(function(resolve, reject) {
-        if (uxt > 0) {
-          resolve(uxt);
+        if (level > 0) {
+          resolve(level);
         }
         else {
-          reject('unix time not positive')
+          reject('level not positive')
         }
       });
     })
-    .then( uxt => { // call the contract on chain to write the uxt on chain:
+    // FMB: Take the result and send it to Zilliqa oracle contract
+/*    .then( uxt => { // call the contract on chain to write the uxt on chain:
       // transition set_data(data: Uint32, request_id: Uint32)
       console.log(` ===> calling set_data(${uxt}, ${config.params.reqID}) to write to oracle contract @  ${oracle_sc.address}`);
       const tx_settings = {   // use same settings for all transactions
@@ -110,6 +149,7 @@ const createRequest = (input, callback) => {
       console.log(` ====> in oracle state: value field of entry in DataRequest map for request with id = ${config.params.reqID}`)
       console.log(state.data_requests[config.params.reqID].arguments[1])
     })
+    */
     .then( )
     .catch(error => {
       callback(500, Requester.errored(jobRunID, error))
