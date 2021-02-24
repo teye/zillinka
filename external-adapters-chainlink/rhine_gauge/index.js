@@ -79,7 +79,7 @@ const createRequest = (input, callback) => {
   // FMB zilliqa bc stuff
   const use_testnet = false;
   const bc_setup = setup_chain_and_wallet(use_testnet); // which chain to use, fill wallet, etc
-  const oracle_address = bc_setup.addresses.UnixTimeOracle;
+  const oracle_address = bc_setup.addresses.RhineGaugeOracle;
   const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);
   bc_setup.zilliqa.wallet.addByPrivateKey(bc_setup.privateKey);
   const oracle_sc = bc_setup.zilliqa.contracts.at(oracle_address);
@@ -107,16 +107,16 @@ const createRequest = (input, callback) => {
       });
     })
     // FMB: Take the result and send it to Zilliqa oracle contract
-/*    .then( uxt => { // call the contract on chain to write the uxt on chain:
-      // transition set_data(data: Uint32, request_id: Uint32)
-      console.log(` ===> calling set_data(${uxt}, ${config.params.reqID}) to write to oracle contract @  ${oracle_sc.address}`);
+    .then( level => { // call the contract on chain to write the uxt on chain:
+      // transition set_data(data: Uint128, request_id: Uint32)
+      console.log(` ===> calling set_data(${level}, ${config.params.reqID}) to write to oracle contract @  ${oracle_sc.address}`);
       const tx_settings = {   // use same settings for all transactions
         "gas_price": units.toQa('5000', units.Units.Li),
         "gas_limit": Long.fromNumber(50000),
         "attempts": Long.fromNumber(25),
       };
       const args = [
-        { vname: 'data',      type: 'Uint128',  value: uxt.toString() },
+        { vname: 'data',      type: 'Uint128',  value: level.toString() },
         { vname: 'request_id', type: 'Uint32',   value: config.params.reqID.toString()},
      ];
       return call_contract(oracle_sc, 'set_data', args, new BN(0), pub_key, bc_setup, tx_settings);
@@ -146,10 +146,11 @@ const createRequest = (input, callback) => {
       });
     })
     .then( (state) => {
-      console.log(` ====> in oracle state: value field of entry in DataRequest map for request with id = ${config.params.reqID}`)
-      console.log(state.data_requests[config.params.reqID].arguments[1])
+      console.log(` ====> in oracle state: entry in DataRequest map for request with id = ${config.params.reqID}`);
+      const entry = state.data_requests[config.params.reqID];
+      console.log(`       date is: ${entry.arguments[1]}`);
+      console.log(`       pegel level is: ${entry.arguments[2].arguments[0]}`);
     })
-    */
     .then( )
     .catch(error => {
       callback(500, Requester.errored(jobRunID, error))

@@ -69,7 +69,7 @@ const createRequest = (input, callback) => {
       });
     })
     .then( uxt => { // call the contract on chain to write the uxt on chain:
-      // transition set_data(data: Uint32, request_id: Uint32)
+      // transition set_data(data: Uint128, request_id: Uint32)
       console.log(` ===> calling set_data(${uxt}, ${config.params.reqID}) to write to oracle contract @  ${oracle_sc.address}`);
       const tx_settings = {   // use same settings for all transactions
         "gas_price": units.toQa('5000', units.Units.Li),
