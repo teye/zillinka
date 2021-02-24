@@ -34,7 +34,7 @@ yarn start
 ### on Linux
 Make curl call inside the same subdirectory `unixtime` in a different terminal:
 ```bash
-curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { } }'
+curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data":  { "reqID": 0}  }'
 ```
 ### on Windows (in a power shell)
 ```bash
@@ -94,4 +94,4 @@ RawContentLength  : 424
 ``
 ### and on both platforms in the terminal/shell where you have executed ```yarn start```
 
-`===> unix time is 1613578799` 
+`===> unix time is 1613578799`
