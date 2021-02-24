@@ -13,6 +13,8 @@ function setup_chain_and_wallet(/*bool*/testnet)
       'b74501e0d2d047e8aaa2353020b46f31d396f92d05843665573300995e3aed88';
     uxt_oracle_addr = '';
     uxt_oracle_client_addr = '';
+    rhine_oracle_addr = '';
+    rhine_oracle_client_addr = '';
   }
   else { // Isolated server / Simulated ENV
     zilliqa_chain = new Zilliqa('https://zilliqa-isolated-server.zilliqa.com/');
@@ -21,6 +23,8 @@ function setup_chain_and_wallet(/*bool*/testnet)
     'a50a2e439e8d69f2376b473f246a8a3d158c475e89bb551be6a63c8f1b251f17';
     uxt_oracle_addr = '0xaea0670f897bd8a48fe74c32d1d351f34314f014';
     uxt_oracle_client_addr = '0x65ee30347fe6bcb3e3020fa352970720426e326f';
+    rhine_oracle_addr = '0x6170789acfacdd8041463be60d8951a080c9a808';
+    rhine_oracle_client_addr = '0xf8fde3e4bcc61170e3fad8b5d238d2dea3aa50f2';
   }
   const msgVersion = 1; // current msgVersion
   const VERSION = bytes.pack(chainId, msgVersion);
@@ -30,6 +34,8 @@ function setup_chain_and_wallet(/*bool*/testnet)
           "addresses": {
                 "UnixTimeOracle": uxt_oracle_addr,
                 "UnixTimeOracleClient": uxt_oracle_client_addr,
+                "RhineGaugeOracle": rhine_oracle_addr,
+                "RhineGaugeOracleClient": rhine_oracle_client_addr,
               },
             };
 }
