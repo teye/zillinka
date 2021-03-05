@@ -37,7 +37,7 @@ describe("Oracle and OracleClient for Unix Time", function () {
     const init = [ { vname: '_scilla_version', type: 'Uint32',   value: '0', } ];
     const [tx, sc] = await deploy_contract(sc_string, init, setup, tx_settings);
     const addr = sc.address;
-    console.log(`  ... >  address of deployed Oracle contract: ${addr}`);
+    console.log(`  ... > address of deployed Oracle contract: ${addr}`);
     assert.notStrictEqual(addr,'');
     oracle_sc = setup.zilliqa.contracts.at(addr); // load the deployed contract from the bc
     console.log(`  ... > address of deployed Oracle contract instance: ${oracle_sc.address}`);
