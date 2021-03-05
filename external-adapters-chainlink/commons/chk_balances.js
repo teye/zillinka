@@ -19,19 +19,16 @@ async function zilBalanceForKey(key, chain, verbose = false)
   return b_zil;
 }
 
-async function chkBalances() {
+async function chkBalance() {
   try {
-    let i = 0;
-    for (i=0; i<setup.keys.length; i++) {
-      const b = await zilBalanceForKey(setup.keys[i], setup.zilliqa, true);
-    }
+    const b = await zilBalanceForKey(setup.privateKey, setup.zilliqa, true);
   }
   catch (err) {
     console.log(err);
   }
 }
 
-exports.chkBalances = chkBalances;
+exports.chkBalance = chkBalance;
 exports.zilBalanceForKey = zilBalanceForKey;
 
-//chkBalances();
+chkBalance();

@@ -19,8 +19,8 @@ function setup_chain_and_wallet(/*bool*/testnet)
   else { // Isolated server / Simulated ENV
     zilliqa_chain = new Zilliqa('https://zilliqa-isolated-server.zilliqa.com/');
     chainId = 222;
-    privateKey = // corresponding address: 0x2C18770C1Ff8dB2a2e66C02c482a9396202F994f
-    'a50a2e439e8d69f2376b473f246a8a3d158c475e89bb551be6a63c8f1b251f17';
+    privateKey = // corresponding address: 0x2CdBC15AA0BE9C7476731C53696CA579D479ffCA
+    '216065ac2352567ba9bb1d9e4e0220819671da37ebfd1fff6a6facfe5ede5784';
     uxt_oracle_addr = '0xaea0670f897bd8a48fe74c32d1d351f34314f014';
     uxt_oracle_client_addr = '0x65ee30347fe6bcb3e3020fa352970720426e326f';
     rhine_oracle_addr = '0x6170789acfacdd8041463be60d8951a080c9a808';
