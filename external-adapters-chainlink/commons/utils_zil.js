@@ -11,10 +11,10 @@ function setup_chain_and_wallet(/*bool*/testnet)
     chainId = 333;
     privateKey =  // corresponding address: 0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8
       'b74501e0d2d047e8aaa2353020b46f31d396f92d05843665573300995e3aed88';
-    uxt_oracle_addr = '';
-    uxt_oracle_client_addr = '';
-    rhine_oracle_addr = '';
-    rhine_oracle_client_addr = '';
+    uxt_oracle_addr = '0xaa28674d160a7b74cd6b3eedce733ac5c01cd26a';
+    uxt_oracle_client_addr = '0x61b0e75ad884ccb3253c9eaa6396dea3c80f2f67';
+    rhine_oracle_addr = '0xbd0a71b5490291cf99b00a733068627abdac6fcc';
+    rhine_oracle_client_addr = '0xc9357c221cebf5f20e35153103032747a0d99bbf';
   }
   else { // Isolated server / Simulated ENV
     zilliqa_chain = new Zilliqa('https://zilliqa-isolated-server.zilliqa.com/');

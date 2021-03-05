@@ -22,7 +22,7 @@ const customError = (data) => {
 
 // Define custom parameters to be used by the adapter.
 const customParams = {
-  reqID: ['requestID', 'reqID', 'rID'] // the id assigned by the oracle contract for this current request
+  reqID: ['reqID'] // the id assigned by the oracle contract for this current request
 }
 
 const createRequest = (input, callback) => {
@@ -38,7 +38,7 @@ const createRequest = (input, callback) => {
   }
 
   // FMB zilliqa bc stuff
-  const use_testnet = false;
+  const use_testnet = true;
   const bc_setup = setup_chain_and_wallet(use_testnet); // which chain to use, fill wallet, etc
   const oracle_address = bc_setup.addresses.UnixTimeOracle;
   const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);

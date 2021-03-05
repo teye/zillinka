@@ -4,7 +4,7 @@
   $ node app.js
   Listening on port 8080!
 # in a different terminal
-[..]/rhine_gauge/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "reqID": 0, "dateString": "2021-02-23"} }'
+[..]/rhine_gauge/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "reqID": 0, "dateString": "2021-03-04"} }'
   {"jobRunID":0,"data":[{"timestamp":"2021-02-23T12:00:00+01:00","value":256}, ...,
   ....,{"timestamp":"2021-02-24T13:45:00+01:00","value":247}],"result":256,"statusCode":200}
 */
@@ -23,7 +23,7 @@ const customError = (data) => {
 
 // Define custom parameters to be used by the adapter.
 const customParams = {
-  reqID: ['requestID', 'reqID', 'rID'], // the id assigned by the oracle contract for this current request
+  reqID: ['reqID'], // the id assigned by the oracle contract for this current request
   ds: ['dateString', 'ds'] // the target date for the gauge level at noon in format "yyyy-mm-dd"
 }
 
@@ -77,7 +77,7 @@ const createRequest = (input, callback) => {
   }
 
   // FMB zilliqa bc stuff
-  const use_testnet = false;
+  const use_testnet = true;
   const bc_setup = setup_chain_and_wallet(use_testnet); // which chain to use, fill wallet, etc
   const oracle_address = bc_setup.addresses.RhineGaugeOracle;
   const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);
