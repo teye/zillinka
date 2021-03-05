@@ -1,9 +1,9 @@
-version: '3'
+version: '3.6'
 services:
   chainlink-core-db:
     image: postgres:11.5
     container_name: chainlink-core-db
-    restart: always
+    restart: on-failure
     volumes:
       - chainlink-core-db:/var/lib/postgresql/data
     ports:
@@ -12,32 +12,94 @@ services:
       - POSTGRES_DB=chainlink
       - POSTGRES_USER=chainlink
       - POSTGRES_PASSWORD=password
-  # chainlink-external-initiator-db:
-  #   image: postgres:11.5
-  #   container_name: chainlink-external-initiator-db
-  #   restart: always
-  #   volumes:
-  #     - chainlink-external-initiator-db:/var/lib/postgresql/data
-  #   ports:
-  #     - 5432:5432
-  #   environment:
-  #     - POSTGRES_DB=chainlink
-  #     - POSTGRES_USER=chainlink
-  #     - POSTGRES_PASSWORD=password
+    networks:
+      - zilliqa
+  chainlink-external-initiator-db:
+    image: postgres:11.5
+    container_name: chainlink-external-initiator-db
+    restart: on-failure
+    volumes:
+      - chainlink-external-initiator-db:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
+    environment:
+      - POSTGRES_DB=chainlink
+      - POSTGRES_USER=chainlink
+      - POSTGRES_PASSWORD=password
+    networks:
+      - zilliqa
+  chainlink-external-initiator:
+    build:  ./external-initiator
+    restart: on-failure
+    container_name: chainlink-external-initiator
+    environment:
+      - EI_PORT=8080
+      - EI_DATABASEURL=postgresql://chainlink:password@chainlink-external-initiator-db:5432/chainlink?sslmode=disable
+      - EI_CHAINLINKURL=http://chainlink-node:6688/
+      - EI_CI_ACCESSKEY=2/KYLJgGFmj5IcjqAoay+jeCX2Q3JFXl/UUNIS40psBfQZDgncvsjizGzbbzKtwQ
+      - EI_CI_SECRET=RgQVYVzeI8Oga+aDSdnrUrBZIJ5CNmzf7HQlOrETDYgEHBwapwVRhExMKW6sG+I8
+      - EI_IC_ACCESSKEY=71114f73620545c4a02e375208f8698a
+      - EI_IC_SECRET=49UF+OIOfGmVXq014VEXxhR04TiBamkgn55CFsiJoS2MOAHgFvAQpCOqVsWSJI/X
+    depends_on:
+      - chainlink-external-initiator-db
+      - chainlink-node
+    command:
+      - '{"name":"zil-ws","type":"zilliqa","url":"wss://dev-ws.zilliqa.com","refreshInterval":600}'
+    networks:
+      - zilliqa
   chainlink-node:
-    env_file: chainlink-node/.env
+    image: smartcontract/chainlink
+    container_name: chainlink-node
+    restart: on-failure
+    command: node start -d -p /run/secrets/password -a /run/secrets/api-credentials import /run/secrets/keystore
+    environment:
+      - ROOT=/chainlink
+      - LOG_LEVEL=debug
+      - MIN_OUTGOING_CONFIRMATIONS=2
+      - LINK_CONTRACT_ADDRESS=0x01BE23585060835E02B77ef475b0Cc51aA1e0709
+      - CHAINLINK_TLS_PORT=0
+      - SECURE_COOKIES=false
+      - GAS_UPDATER_ENABLED=true
+      - ALLOW_ORIGINS=*
+      - ETH_CHAIN_ID=4
+      - ETH_URL=ws://geth-client:8546
+      - DATABASE_URL=postgresql://chainlink:password@chainlink-core-db:5432/chainlink?sslmode=disable
+      - FEATURE_EXTERNAL_INITIATORS=true
+      - CHAINLINK_DEV=true
+      # - ETH_DISABLED=true
+    secrets:
+      - password
+      - api-credentials
+      - keystore
     depends_on: 
       - chainlink-core-db
       - geth-client
-    build: ./chainlink-node
-    container_name: chainlink-node
     ports:
       - 6688:6688
+    networks:
+      - zilliqa
   geth-client:
     image: ethereum/client-go
     container_name: geth-client
-    command: -rinkeby --ws --ipcdisable --wsaddr 0.0.0.0 --wsorigins="*" --datadir /geth
+    restart: on-failure
+    command: --rinkeby --ws --ipcdisable --ws.addr 0.0.0.0 --ws.origins="*" --cache=1024 --datadir /geth-data
+    volumes:
+      - ./.geth-data:/geth-data
     ports:
       - 8546:8546
+    networks:
+      - zilliqa
 volumes:
   chainlink-core-db:
+  chainlink-external-initiator-db:
+  geth-data:
+secrets:
+  password:
+    file: ./secrets/password.txt
+  api-credentials:
+    file: ./secrets/api-credentials
+  keystore:
+    file: ./secrets/keystore.json
+networks:
+  zilliqa:
+    name: zilliqa
