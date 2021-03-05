@@ -23,8 +23,8 @@ function setup_chain_and_wallet(/*bool*/testnet)
     '216065ac2352567ba9bb1d9e4e0220819671da37ebfd1fff6a6facfe5ede5784';
     uxt_oracle_addr = '0x827c1f98a934de858f875c0d7a489a24a1d119ed';
     uxt_oracle_client_addr = '0xb80ad4de4ace27c7313d2439d8615ce7bad9a23d';
-    rhine_oracle_addr = '0x6170789acfacdd8041463be60d8951a080c9a808';
-    rhine_oracle_client_addr = '0xf8fde3e4bcc61170e3fad8b5d238d2dea3aa50f2';
+    rhine_oracle_addr = '0x7eabaf2ac5b9a415e27c1e78cf9d831e46446f5b';
+    rhine_oracle_client_addr = '0x40ec20eaea9a1345d548b5490da50a9437b9c800';
   }
   const msgVersion = 1; // current msgVersion
   const VERSION = bytes.pack(chainId, msgVersion);
