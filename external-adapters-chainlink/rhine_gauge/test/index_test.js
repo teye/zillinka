@@ -14,8 +14,8 @@ describe('createRequest', () => {
 
   context('successful calls', () => {
     const requests = [
-      { name: 'requestID', testData: { id: jobID, data: { requestID: reqID, dateString: yesterday } } },
-      { name: 'reqID', testData: { id: jobID, data: { reqID: reqID, dateString: yesterday } } },
+//      { name: 'requestID', testData: { id: jobID, data: { requestID: reqID, dateString: yesterday } } },
+//      { name: 'reqID', testData: { id: jobID, data: { reqID: reqID, dateString: yesterday } } },
       { name: 'rID', testData: { id: jobID, data: { rID: reqID, dateString: yesterday } } }
     ]
 
