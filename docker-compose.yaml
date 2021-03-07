@@ -99,6 +99,24 @@ services:
       - 8088:8080
     networks:
       - zilliqa
+  external-adapter-rhine_gauge:
+    build: 
+      dockerfile: rhine_gauge/Dockerfile
+      context: external-adapters-chainlink/
+    container_name: external-adapter-rhine_gauge
+    restart: on-failure
+    ports:
+      - 8089:8080
+    networks:
+      - zilliqa
+  external-adapter-ethusd:
+    build: external-adapters-chainlink/ethusd/
+    container_name: external-adapter-ethusd
+    restart: on-failure
+    ports:
+      - 8090:8080
+    networks:
+      - zilliqa
 volumes:
   chainlink-core-db:
   chainlink-external-initiator-db:

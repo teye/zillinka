@@ -8,4 +8,5 @@ RUN chown -Rh node node_modules
 RUN yarn --frozen-lockfile 
 COPY --chown=node:node rhine_gauge/ . 
 COPY --chown=node:node commons/ ../commons
+RUN cd ../commons && yarn && cd -
 CMD [ "node", "app.js" ]
