@@ -92,7 +92,7 @@ services:
   external-adapter-unixtime:
     build: 
       dockerfile: unixtime/Dockerfile
-      context: external-adapters-chainlink/
+      context: external-adapters/
     container_name: external-adapter-unixtime
     restart: on-failure
     ports:
@@ -102,7 +102,7 @@ services:
   external-adapter-rhine_gauge:
     build: 
       dockerfile: rhine_gauge/Dockerfile
-      context: external-adapters-chainlink/
+      context: external-adapters/
     container_name: external-adapter-rhine_gauge
     restart: on-failure
     ports:
@@ -110,7 +110,7 @@ services:
     networks:
       - zilliqa
   external-adapter-ethusd:
-    build: external-adapters-chainlink/ethusd/
+    build: external-adapters/ethusd/
     container_name: external-adapter-ethusd
     restart: on-failure
     ports:
