@@ -35,7 +35,7 @@ describe("Oracle and OracleClient for Rhine Gauge", function () {
   function str_upper_eq(/*String*/str0, /*String*/str1) {return (str0.toUpperCase() == str1.toUpperCase());} // case insensitive str comparison
 
   it("should deploy the Oracle, its address should not be empty thereafter", async function() {
-    const sc_string = StringFromFile("Oracle.scilla"); // read scilla contract
+    const sc_string = StringFromFile("scilla/Oracle.scilla"); // read scilla contract
     const init = [ { vname: '_scilla_version', type: 'Uint32',   value: '0', } ];
     const [tx, sc] = await deploy_contract(sc_string, init, setup, tx_settings);
     const addr = sc.address;
@@ -46,7 +46,7 @@ describe("Oracle and OracleClient for Rhine Gauge", function () {
   });
 
   it("should deploy the OracleClient and its address should not be empty thereafter, and have oracle adress in state", async function() {
-    const sc_string = StringFromFile("OracleClient.scilla"); // read scilla contract
+    const sc_string = StringFromFile("scilla/OracleClient.scilla"); // read scilla contract
     const init = [
       { vname: '_scilla_version',               type: 'Uint32',   value: '0', },
       { vname: 'oracle_address_at_deployment',  type: 'ByStr20',  value: oracle_sc.address },

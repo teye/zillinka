@@ -89,6 +89,16 @@ services:
       - 8546:8546
     networks:
       - zilliqa
+  external-adapter-unixtime:
+    build: 
+      dockerfile: unixtime/Dockerfile
+      context: external-adapters-chainlink/
+    container_name: external-adapter-unixtime
+    restart: on-failure
+    ports:
+      - 8088:8080
+    networks:
+      - zilliqa
 volumes:
   chainlink-core-db:
   chainlink-external-initiator-db:

@@ -1,0 +1,7 @@
+.git
+.cache
+.gitigonore
+**/*.md
+**/node_modules
+**/test
+**/Dockerfile
