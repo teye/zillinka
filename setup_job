@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+source ./common
+
+log=$LOG_PATH/send_event_transaction.log
+
+title "EI event setup job using $1"
+
+setup_job() {
+  trap exit_handler EXIT
+
+  pushd scripts >/dev/null || exit
+  # Arguments: config_name, address, account
+  yarn create-job "$1" "$2" "$3" | tee "$log"
+  popd >/dev/null || exit
+
+  jid=$(grep <"$log" "Deployed Job" | awk '{print$4}')
+
+}
+
+# Arguments: config_name, address, account
+setup_job "$1" "$2" "$3" 

@@ -1,11 +1,11 @@
 version: '3.6'
 services:
-  chainlink-core-db:
+  core-db:
     image: postgres:11.5
-    container_name: chainlink-core-db
+    container_name: core-db
     restart: on-failure
     volumes:
-      - chainlink-core-db:/var/lib/postgresql/data
+      - core-db:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
@@ -14,12 +14,12 @@ services:
       - POSTGRES_PASSWORD=password
     networks:
       - zilliqa
-  chainlink-external-initiator-db:
+  external-initiator-db:
     image: postgres:11.5
-    container_name: chainlink-external-initiator-db
+    container_name: external-initiator-db
     restart: on-failure
     volumes:
-      - chainlink-external-initiator-db:/var/lib/postgresql/data
+      - ei-db:/var/lib/postgresql/data
     ports:
       - 5434:5432
     environment:
@@ -28,30 +28,29 @@ services:
       - POSTGRES_PASSWORD=password
     networks:
       - zilliqa
-  chainlink-external-initiator:
+  external-initiator:
     build:  ./external-initiator
     restart: on-failure
-    container_name: chainlink-external-initiator
+    container_name: external-initiator
     environment:
-      - EI_PORT=8080
-      - EI_DATABASEURL=postgresql://chainlink:password@chainlink-external-initiator-db:5432/chainlink?sslmode=disable
+      - EI_DATABASEURL=postgresql://chainlink:password@external-initiator-db:5432/chainlink?sslmode=disable
       - EI_CHAINLINKURL=http://chainlink-node:6688/
-      - EI_CI_ACCESSKEY=2/KYLJgGFmj5IcjqAoay+jeCX2Q3JFXl/UUNIS40psBfQZDgncvsjizGzbbzKtwQ
-      - EI_CI_SECRET=RgQVYVzeI8Oga+aDSdnrUrBZIJ5CNmzf7HQlOrETDYgEHBwapwVRhExMKW6sG+I8
-      - EI_IC_ACCESSKEY=71114f73620545c4a02e375208f8698a
-      - EI_IC_SECRET=49UF+OIOfGmVXq014VEXxhR04TiBamkgn55CFsiJoS2MOAHgFvAQpCOqVsWSJI/X
+    env_file:
+      - ./external_initiator.env
     depends_on:
-      - chainlink-external-initiator-db
+      - external-initiator-db
       - chainlink-node
     command:
       - '{"name":"zil-ws","type":"zilliqa","url":"wss://dev-ws.zilliqa.com","refreshInterval":600}'
+    ports:
+      - 8080:8080
     networks:
       - zilliqa
   chainlink-node:
     image: smartcontract/chainlink
     container_name: chainlink-node
     restart: on-failure
-    command: node start -d -p /run/secrets/password -a /run/secrets/api-credentials import /run/secrets/keystore
+    command: node start -d -p /run/secrets/password -a /run/secrets/apicredentials import /run/secrets/keystore
     environment:
       - ROOT=/chainlink
       - LOG_LEVEL=debug
@@ -63,16 +62,16 @@ services:
       - ALLOW_ORIGINS=*
       - ETH_CHAIN_ID=4
       - ETH_URL=ws://geth-client:8546
-      - DATABASE_URL=postgresql://chainlink:password@chainlink-core-db:5432/chainlink?sslmode=disable
+      - DATABASE_URL=postgresql://chainlink:password@core-db:5432/chainlink?sslmode=disable
       - FEATURE_EXTERNAL_INITIATORS=true
       - CHAINLINK_DEV=true
       # - ETH_DISABLED=true
     secrets:
       - password
-      - api-credentials
+      - apicredentials
       - keystore
     depends_on: 
-      - chainlink-core-db
+      - core-db
       - geth-client
     ports:
       - 6688:6688
@@ -96,7 +95,7 @@ services:
     container_name: external-adapter-unixtime
     restart: on-failure
     ports:
-      - 8088:8080
+      - 8090:8080
     networks:
       - zilliqa
   external-adapter-rhine_gauge:
@@ -106,7 +105,7 @@ services:
     container_name: external-adapter-rhine_gauge
     restart: on-failure
     ports:
-      - 8089:8080
+      - 8091:8080
     networks:
       - zilliqa
   external-adapter-ethusd:
@@ -114,18 +113,18 @@ services:
     container_name: external-adapter-ethusd
     restart: on-failure
     ports:
-      - 8090:8080
+      - 8092:8080
     networks:
       - zilliqa
 volumes:
-  chainlink-core-db:
-  chainlink-external-initiator-db:
+  core-db:
+  ei-db:
   geth-data:
 secrets:
   password:
     file: ./secrets/password.txt
-  api-credentials:
-    file: ./secrets/api-credentials
+  apicredentials:
+    file: ./secrets/apicredentials
   keystore:
     file: ./secrets/keystore.json
 networks:
