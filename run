@@ -24,8 +24,8 @@ run() {
   login_chainlink
 
   # Address based
-  # Arguments: config_name, address, account
-  ./setup_job "zil-ws" "0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8" ""
+  # Arguments: name endpoint, addresses, address
+  ./setup_job "zil" "zil-ws" "0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8" ""
 
   # stop_docker
 

@@ -25,12 +25,12 @@ async function createJob({ chainlinkUrl }: Options) {
       {
         type: 'external',
         params: {
-          name: 'mock-client',
+          name: process.argv[2],
           body: {
-            endpoint: process.argv[2],
-            addresses: [process.argv[3]],
-            address: process.argv[3],
-            accountIds: [process.argv[4]],
+            endpoint: process.argv[3],
+            addresses: [process.argv[4]],
+            address: process.argv[4],
+            accountIds: [process.argv[5]],
             from: '0x0000000000000000000000000000000000000000',
             upkeepId: '123',
           },
