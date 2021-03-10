@@ -2,7 +2,7 @@
 
 set -e
 
-source ./common
+source ./helper/common
 
 run_setup() {
   mkdir -p "$LOG_PATH"

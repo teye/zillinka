@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+source ./common
+
+log=$LOG_PATH/send_event_transaction.log
+
+title "EI event setup bridge using $1"
+
+setup_bridge() {
+  trap exit_handler EXIT
+
+  pushd scripts >/dev/null || exit
+  # Arguments: name, endpoint, address, account
+  yarn create-bridge "$1" "$2" | tee "$log"
+  popd >/dev/null || exit
+
+  jid=$(grep <"$log" "Deployed Bridge" | awk '{print$4}')
+
+}
+
+# Arguments: name, endpoint, addresses, address
+setup_bridge "$1" "$2" 

@@ -12,7 +12,8 @@
     "build": "tsc",
     "setup": "yarn build",
     "add-ei": "node ./dist/addExternalInitiator",
-    "create-job": "node ./dist/createJob"
+    "create-job": "node ./dist/createJob",
+    "create-bridge": "node ./dist/createBridge"
   },
   "dependencies": {
     "axios": "^0.21.1",

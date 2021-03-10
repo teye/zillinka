@@ -13,12 +13,12 @@ setup_job() {
 
   pushd scripts >/dev/null || exit
   # Arguments: name, endpoint, address, account
-  yarn create-job "$1" "$2" "$3" "$4"| tee "$log"
+  yarn create-job "$1" "$2" "$3" "$4" "$5"| tee "$log"
   popd >/dev/null || exit
 
   jid=$(grep <"$log" "Deployed Job" | awk '{print$4}')
 
 }
 
-# Arguments: name, endpoint, addresses, address
-setup_job "$1" "$2" "$3" "$4"
+# Arguments: name, endpoint, addresses, address, bridge
+setup_job "$1" "$2" "$3" "$4" "$5"

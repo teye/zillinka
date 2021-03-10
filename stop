@@ -2,6 +2,6 @@
 
 set -e
 
-source ./common
+source ./helper/common
 
 stop_docker

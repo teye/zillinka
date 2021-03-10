@@ -2,7 +2,7 @@
 
 set -e
 
-source ./common
+source ./helper/common
 
 run() {
   trap exit_handler EXIT
@@ -23,13 +23,13 @@ run() {
 
   login_chainlink
 
-  # Address based
-  # Arguments: name endpoint, addresses, address
-  ./setup_job "zil" "zil-ws" "0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8" ""
+  # Arguments: bridge type, url
+  ./helper/setup_bridge "zil-unixtime-bridge" "http://external-adapter-unixtime:8090"
 
-  # stop_docker
+  # Arguments: name endpoint, addresses, address, bridge
+  ./helper/setup_job "zil-unixtime-job" "zil-ws" "0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8" "" "zil-unixtime-bridge"
 
-  title "Done running tests"
+  title "Started up"
 }
 
 run
