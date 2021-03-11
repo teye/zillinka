@@ -12,6 +12,7 @@ const { Requester, Validator } = require('@chainlink/external-adapter')
 const {  getPubKeyFromPrivateKey } = require('@zilliqa-js/crypto');
 const { BN, Long, units } = require('@zilliqa-js/util');
 const { setup_chain_and_wallet, call_contract} = require('../commons/utils_zil.js')
+const {JSONPath} = require('jsonpath-plus');
 
 // Define custom error scenarios for the API.
 // Return true for the adapter to retry.
@@ -22,15 +23,25 @@ const customError = (data) => {
 
 // Define custom parameters to be used by the adapter.
 const customParams = {
-  reqID: ['reqID'] // the id assigned by the oracle contract for this current request
+  requestId: ['requestId'] // the id assigned by the oracle contract for this current request
 }
 
 const createRequest = (input, callback) => {
+  console.log(` ====> Request: = `);
+  console.log(JSON.stringify(input));
+  console.log(` ====> requestId: = `)
+  console.log(JSONPath({path: "$.data.value[0].event_logs[0].params[?(@.vname == 'requestId')].value", json: input, wrap: false}))
+  
   const validator = new Validator(callback, input, customParams)
+
+  console.log(` ====> Validator: = `);
+  console.log(JSON.stringify(validator.validated));
+  console.log(JSON.stringify(validator.validated.data));
+
   const jobRunID = validator.validated.id
   const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
   const reqID = validator.validated.data.reqID
-  const params = { reqID }
+  const params = { requestId }
 
   const config = {
     url,

@@ -104,6 +104,7 @@ type ZilEventLogQueryValue struct {
 // createZilManager creates a new instance of zilManager with the provided
 // connection type and store.ZilSubscription config.
 func createZilManager(p subscriber.Type, config store.Subscription) zilManager {
+	logger.Info("Creating zil manager.")
 	var addresses []string
 	for _, a := range config.Zilliqa.Accounts {
 		addresses = append(addresses, a)
@@ -120,7 +121,7 @@ func createZilManager(p subscriber.Type, config store.Subscription) zilManager {
 // GetTriggerJson generates a JSON payload to the ZIL node
 // using the config in zilManager.
 func (z zilManager) GetTriggerJson() []byte {
-	logger.Debugw("Getting trigger json", "ExpectsMock", ExpectsMock)
+	logger.Infow("Getting trigger json", "ExpectsMock", ExpectsMock)
 
 	queryCall := ZilEventLogQueryRequest{
 		Query:     "EventLog",
@@ -139,7 +140,7 @@ func (z zilManager) GetTriggerJson() []byte {
 		if err != nil {
 			return nil
 		}
-		logger.Debug("Payload", string(bytes))
+		logger.Infow("Payload", string(bytes))
 		return bytes
 	default:
 		logger.Errorw(ErrSubscriberType.Error(), "type", z.p)
@@ -156,7 +157,7 @@ func (z zilManager) GetTriggerJson() []byte {
 // If zilManager is using RPC:
 // Sends a request to get the latest block number.
 func (z zilManager) GetTestJson() []byte {
-	logger.Debugw("Get test json", "ExpectsMock", ExpectsMock)
+	logger.Infow("Get test json", "ExpectsMock", ExpectsMock)
 	return nil
 }
 
@@ -167,7 +168,7 @@ func (z zilManager) GetTestJson() []byte {
 // If zilManager is using WebSocket:
 // Returns nil.
 func (z zilManager) ParseTestResponse(data []byte) error {
-	logger.Debugw("Parsing test response", "ExpectsMock", ExpectsMock)
+	logger.Infow("Parsing test response", "ExpectsMock", ExpectsMock)
 	return nil
 }
 
@@ -175,16 +176,16 @@ func (z zilManager) ParseTestResponse(data []byte) error {
 // ZIL node, and returns a slice of subscriber.Events
 // and if the parsing was successful.
 func (z zilManager) ParseResponse(data []byte) ([]subscriber.Event, bool) {
-	logger.Debugw("Parsing response", "ExpectsMock", ExpectsMock)
-
+	logger.Infow("Parsing response", "ExpectsMock", ExpectsMock)
+	logger.Infow("Response: ", "response", string(data))
 	var msg ZilEventLogQueryResponse
 	if err := json.Unmarshal(data, &msg); err != nil {
 		logger.Error("failed parsing message: ", string(data))
 		return nil, false
 	}
 
-	if msg.Type != "Notification" || len(msg.Values) == 0 {
-		logger.Error("invalid message: ", msg)
+	if msg.Type != "Notification" || len(msg.Values[0].Value) == 0 {
+		logger.Infow("null message, skipping: ", string(data))
 		return nil, false
 	}
 
@@ -193,6 +194,7 @@ func (z zilManager) ParseResponse(data []byte) ([]subscriber.Event, bool) {
 	switch z.p {
 	case subscriber.WS:
 		for _, v := range msg.Values {
+			logger.Infow("Events: ", "Event", v)
 			event, err := json.Marshal(v)
 			if err == nil {
 				events = append(events, event)
