@@ -2,7 +2,7 @@
 
 set -e
 
-source ./common
+source ./helper/common
 
 log=$LOG_PATH/send_event_transaction.log
 

@@ -37,7 +37,9 @@ async function createJob({ chainlinkUrl }: Options) {
         },
       },
     ],
-    tasks: [{ type: process.argv[6] }],
+    tasks: [
+      { type: process.argv[6] }
+    ],
   }
   const specsUrl = url.resolve(chainlinkUrl, '/v2/specs')
   const Job = await axios

@@ -50,7 +50,6 @@ launch_chainlink() {
 
 login_chainlink() {
   docker exec chainlink-node chainlink admin login -f /run/secrets/apicredentials
-  # docker exec chainlink-node chainlink initiators create zil http://chainlink-external-initiator:8080
 }
 
 run_ei() {

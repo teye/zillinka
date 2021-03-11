@@ -24,10 +24,10 @@ run() {
   login_chainlink
 
   # Arguments: bridge type, url
-  ./helper/setup_bridge "zil-unixtime-bridge" "http://external-adapter-unixtime:8090"
+  ./helper/setup_bridge "zil-unixtime-bridge" "http://external-adapter-unixtime:8080"
 
   # Arguments: name endpoint, addresses, address, bridge
-  ./helper/setup_job "zil-unixtime-job" "zil-ws" "0x56A7812f68cbF83194a4a777D2310Aa7A378C9D8" "" "zil-unixtime-bridge"
+  ./helper/setup_job "zil" "zil-ws" "0xaa28674d160a7b74cd6b3eedce733ac5c01cd26a" "" "zil-unixtime-bridge"
 
   title "Started up"
 }
