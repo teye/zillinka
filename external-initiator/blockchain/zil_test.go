@@ -16,12 +16,6 @@ func TestCreateZilFilterMessage(t *testing.T) {
 		want []byte
 	}{
 		{
-			"empty",
-			store.ZilSubscription{},
-			subscriber.WS,
-			[]byte(nil),
-		},
-		{
 			"address only",
 			store.ZilSubscription{Accounts: []string{"0xafccafdc1ce8249cec35a0b432e329ce1bfac179"}},
 			subscriber.WS,
@@ -157,7 +151,7 @@ func TestZilManager_ParseResponse(t *testing.T) {
 			fields{fq: &filterQuery{}, p: subscriber.WS},
 			args{data: []byte(`{"query":"EventLog","value":[{"address":"0x0000000000000000000000000000000000000000","event_logs":[{"_eventname":"foo1","params":[{"vname":"bar1","type":"String","value":"abc"},{"vname":"bar2","type":"ByStr32","value":"0x0000000000000000000000000000000000000001"}]}]}]}`)},
 			[]subscriber.Event{
-				subscriber.Event(`{"address":"0x0000000000000000000000000000000000000000","event_logs":[{"_eventname":"foo1","params":[{"vname":"bar1","type":"String","value":"abc"},{"vname":"bar2","type":"ByStr32","value":"0x0000000000000000000000000000000000000001"}]}]}`),
+				subscriber.Event(`{"address":"0x0000000000000000000000000000000000000000","_eventname":"foo1","bar1":"abc","bar2":"0x0000000000000000000000000000000000000001"}`),
 			},
 			true,
 		},

@@ -29,18 +29,12 @@ const customParams = {
 const createRequest = (input, callback) => {
   console.log(` ====> Request: = `);
   console.log(JSON.stringify(input));
-  console.log(` ====> requestId: = `)
-  console.log(JSONPath({path: "$.data.value[0].event_logs[0].params[?(@.vname == 'requestId')].value", json: input, wrap: false}))
-  
+   
   const validator = new Validator(callback, input, customParams)
-
-  console.log(` ====> Validator: = `);
-  console.log(JSON.stringify(validator.validated));
-  console.log(JSON.stringify(validator.validated.data));
 
   const jobRunID = validator.validated.id
   const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
-  const reqID = validator.validated.data.reqID
+  const requestId = validator.validated.data.reqID
   const params = { requestId }
 
   const config = {

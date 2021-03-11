@@ -8,7 +8,7 @@ run() {
   trap exit_handler EXIT
 
   mkdir -p "$LOG_PATH"
-
+  
   title "Initiating a fresh test"
 
   # Remove old volumes so we can run a fresh test
@@ -25,9 +25,11 @@ run() {
 
   # Arguments: bridge type, url
   ./helper/setup_bridge "zil-unixtime-bridge" "http://external-adapter-unixtime:8080"
+  # ./helper/setup_bridge "zil-rhine-gauge-bridge" "http://external-adapter-rhine_gauge:8080"
 
   # Arguments: name endpoint, addresses, address, bridge
   ./helper/setup_job "zil" "zil-ws" "0xaa28674d160a7b74cd6b3eedce733ac5c01cd26a" "" "zil-unixtime-bridge"
+  # ./helper/setup_job "zil" "zil-ws" "0xbd0a71b5490291cf99b00a733068627abdac6fcc" "" "zil-rhine_gauge-bridge"
 
   title "Started up"
 }
