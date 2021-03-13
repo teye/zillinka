@@ -1,10 +1,6 @@
 const assert = require('chai').assert
 const createRequest = require('../index.js').createRequest
 
-/*
-curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "reqID": 0, "dateString": "2021-02-28"} }'
-*/
-
 describe('createRequest', () => {
   const jobID = '1'
   const reqID = '0'
@@ -14,7 +10,7 @@ describe('createRequest', () => {
 
   context('successful calls', () => {
     const requests = [
-      { name: 'reqID', testData: { id: jobID, data: { reqID: reqID, dateString: yesterday } } }
+      { name: 'requestId', testData: { id: jobID, data: { requestId: reqID, dateString: yesterday } } }
     ]
 
     requests.forEach(req => {
@@ -35,8 +31,8 @@ describe('createRequest', () => {
     const requests = [
       { name: 'empty body', testData: {} },
       { name: 'empty data', testData: { data: {} } },
-      { name: 'empty reqID', testData: { data: {dateString: yesterday} } },
-      { name: 'empty dateString', testData: { data: {reqID: reqID} } },
+      { name: 'empty requestId', testData: { data: {dateString: yesterday} } },
+      { name: 'empty dateString', testData: { data: {requestId: reqID} } },
     ]
 
     requests.forEach(req => {

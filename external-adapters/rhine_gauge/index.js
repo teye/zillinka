@@ -4,7 +4,7 @@
   $ node app.js
   Listening on port 8080!
 # in a different terminal
-[..]/rhine_gauge/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "reqID": 0, "dateString": "2021-03-04"} }'
+[..]/rhine_gauge/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "requestId": 0, "dateString": "2021-03-12"} }'
   {"jobRunID":0,"data":[{"timestamp":"2021-02-23T12:00:00+01:00","value":256}, ...,
   ....,{"timestamp":"2021-02-24T13:45:00+01:00","value":247}],"result":256,"statusCode":200}
 */
@@ -23,7 +23,7 @@ const customError = (data) => {
 
 // Define custom parameters to be used by the adapter.
 const customParams = {
-  reqID: ['reqID'], // the id assigned by the oracle contract for this current request
+  requestId: ['requestId'], // the id assigned by the oracle contract for this current request
   ds: ['dateString', 'ds'] // the target date for the gauge level at noon in format "yyyy-mm-dd"
 }
 
@@ -68,8 +68,8 @@ const createRequest = (input, callback) => {
     + "/W/measurements.json?start="
     + date
     + time;
-  const reqID = validator.validated.data.reqID
-  const params = { reqID, date, time }
+  const requestId = validator.validated.data.requestId
+  const params = { requestId, date, time }
 
   const config = {
     url,
@@ -109,7 +109,7 @@ const createRequest = (input, callback) => {
     // FMB: Take the result and send it to Zilliqa oracle contract
     .then( level => { // call the contract on chain to write the uxt on chain:
       // transition set_data(data: Uint128, request_id: Uint32)
-      console.log(` ===> calling set_data(${level}, ${config.params.reqID}) to write to oracle contract @  ${oracle_sc.address}`);
+      console.log(` ===> calling set_data(${level}, ${config.params.requestId}) to write to oracle contract @  ${oracle_sc.address}`);
       const tx_settings = {   // use same settings for all transactions
         "gas_price": units.toQa('5000', units.Units.Li),
         "gas_limit": Long.fromNumber(50000),
@@ -117,7 +117,7 @@ const createRequest = (input, callback) => {
       };
       const args = [
         { vname: 'data',      type: 'Uint128',  value: level.toString() },
-        { vname: 'request_id', type: 'Uint32',   value: config.params.reqID.toString()},
+        { vname: 'request_id', type: 'Uint32',   value: config.params.requestId.toString()},
      ];
       return call_contract(oracle_sc, 'set_data', args, new BN(0), pub_key, bc_setup, tx_settings);
     })
@@ -146,8 +146,8 @@ const createRequest = (input, callback) => {
       });
     })
     .then( (state) => {
-      console.log(` ====> in oracle state: entry in DataRequest map for request with id = ${config.params.reqID}`);
-      const entry = state.data_requests[config.params.reqID];
+      console.log(` ====> in oracle state: entry in DataRequest map for request with id = ${config.params.requestId}`);
+      const entry = state.data_requests[config.params.requestId];
       console.log(`       date is: ${entry.arguments[1]}`);
       console.log(`       pegel level is: ${entry.arguments[2].arguments[0]}`);
     })
