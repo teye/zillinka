@@ -4,7 +4,7 @@
   $ node app.js
   Listening on port 8080!
 # in a different terminal
-[..]/rhine_gauge/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "requestId": 0, "dateString": "2021-03-12"} }'
+[..]/rhine_gauge/$ curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "requestId": 0, "date": "2021-03-12"} }'
   {"jobRunID":0,"data":[{"timestamp":"2021-02-23T12:00:00+01:00","value":256}, ...,
   ....,{"timestamp":"2021-02-24T13:45:00+01:00","value":247}],"result":256,"statusCode":200}
 */
@@ -24,7 +24,7 @@ const customError = (data) => {
 // Define custom parameters to be used by the adapter.
 const customParams = {
   requestId: ['requestId'], // the id assigned by the oracle contract for this current request
-  ds: ['dateString', 'ds'] // the target date for the gauge level at noon in format "yyyy-mm-dd"
+  date: ['date'] // the target date for the gauge level at noon in format "yyyy-mm-dd"
 }
 
 // extract specific entry from JSON object received as response for a given date and a given time
@@ -46,7 +46,7 @@ function findValueAtTime(obj, target_date, target_time)
       }
     });
     if (v>0) {
-      return {ds: date_string, value: v};
+      return {date: date_string, value: v};
     }
     else { // no value has been found for target time
       throw Error(`no value found for target time ${target_time} on date ${target_date} (is it past noon already?`);
@@ -59,7 +59,7 @@ function findValueAtTime(obj, target_date, target_time)
 const createRequest = (input, callback) => {
   const validator = new Validator(callback, input, customParams)
   const jobRunID = validator.validated.id
-  const date = validator.validated.data.ds
+  const date = validator.validated.data.date
   const station_id = "1d26e504-7f9e-480a-b52c-5932be6549ab"; // Kaub
   const time = "T12:00:00+01:00"; // noon at UTC + 1h, i.e. central europe
   const url =

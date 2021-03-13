@@ -10,7 +10,7 @@ describe('createRequest', () => {
 
   context('successful calls', () => {
     const requests = [
-      { name: 'requestId', testData: { id: jobID, data: { requestId: reqID, dateString: yesterday } } }
+      { name: 'requestId', testData: { id: jobID, data: { requestId: reqID, date: yesterday } } }
     ]
 
     requests.forEach(req => {
@@ -31,7 +31,7 @@ describe('createRequest', () => {
     const requests = [
       { name: 'empty body', testData: {} },
       { name: 'empty data', testData: { data: {} } },
-      { name: 'empty requestId', testData: { data: {dateString: yesterday} } },
+      { name: 'empty requestId', testData: { data: {date: yesterday} } },
       { name: 'empty dateString', testData: { data: {requestId: reqID} } },
     ]
 
