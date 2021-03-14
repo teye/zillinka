@@ -12,17 +12,17 @@ The project is a monorepo containing all components needed to retrieve data from
 
 ### The Chainlink Node
 
-[The Chainlink core node](./chainlink-node/README.md) module contains the files to start up a core node. It contains the necessary environment files and the Dockerfile to spin up a container running the core node. The node needs to be configured with the addresses it should listen to (These addresses can be on several chains).
-The core node relays requests from the external initator to the external adapter in this context, besides the general features it provides such as configuration persistence etc. This module will be wiped once a PR from Chainnlink is accepted.
+[The Chainlink core node](https://github.com/smartcontractkit/chainlink) is configured in the docker-compose file. It contains the necessary environment configuration to spin up a container running the core node.
+The core node relays requests from the external initator to the external adapter in this context, besides the general features it provides such features as configuration persistence etc. The core node requires a DB for it which is configured in the compose file as well.
 
 ### The External Adapter (EA)
 
-In the current configuration [the external adapter](./external-adapter/README.md) is called by the core node and which sends a request to the external adapter, the EA calls the REST API that requests data from another public REST API.
+In the current configuration [the external adapter](./external-adapter/README.md) is called by the core node and sends a request to the external adapter, the EA calls the REST API that requests data from a public REST API.
 The EA receives the response from the public REST API and initiates a call with the Zilliqa client which executes a transaction on the Zilliqa blockchain thereby completing the call graph.
 
 ## Starting the modules
 
-As not all modules are fully functional yet the docker-compose file starts up the current infrastructure by using the commands described below.
+Starting the infrastructure is a complete process, e.g. all required configurations are executed, you can change most of them in the run file, which let's you change the bridge configuration that defines the external api address and the addresses it needs to listen to via the [Zilliqa websocket API](https://dev.zilliqa.com/docs/dev/dev-tools-websockets/#subscribe-event-log)
 
 ### Prerequisites
 
@@ -37,9 +37,35 @@ Start the infrastructure:
 ```
 Stop the infrastructure:
 ```bash
-docker-compose down
+./stop
 ```
-Clean everything up (will completely erase images and containers etc., confirm with yes):
-```bash
-docker system prune --all
-```
+
+## Details
+
+### Sequence Diagram call graph
+
+<img src="./docs/Zillinka.svg">
+
+### Setup
+
+The setup process creates several integration links while it sets up the infrastructure:
+- It creates an external_initiator.env file to share the credentials between the external initiator and the chainlink node
+- Builds the yarn packages and installation
+- Builds the docker images
+
+### Run
+
+The run process configures the chainlink node finally with the credentials of the external initiator and the configuration of the components for the integration:
+- Reset old docker volumes and start docker compose
+- Add the external initiator configuration to the chainlink node via the nodes' rest api.
+- Startup the external initiator
+- Login to the chainlink node
+- Add the bridges configuration, the bridges are the link between the external adapters and chainlink node
+- Add the jobs configuration, the jobs configuration links the job to the bridge and the external initiators endpoint.
+- The endpoint configuration happens in the docker-compose via the external initiator api on startup.
+
+### Stop
+
+Just shuts down the infrastructure.
+
+

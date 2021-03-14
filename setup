@@ -6,7 +6,6 @@ source ./helper/common
 
 run_setup() {
   mkdir -p "$LOG_PATH"
-  touch external_initiator.env
 
   title "Setting up test environment"
 
