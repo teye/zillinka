@@ -29,8 +29,8 @@ async function createJob({ chainlinkUrl }: Options) {
           body: {
             endpoint: process.argv[3],
             addresses: [process.argv[4]],
-            address: process.argv[4],
-            accountIds: [process.argv[5]],
+            address: process.argv[5],
+            accountIds: [process.argv[6]],
             from: '0x0000000000000000000000000000000000000000',
             upkeepId: '123',
           },
@@ -38,7 +38,7 @@ async function createJob({ chainlinkUrl }: Options) {
       },
     ],
     tasks: [
-      { type: process.argv[6] }
+      { type: process.argv[7] }
     ],
   }
   const specsUrl = url.resolve(chainlinkUrl, '/v2/specs')

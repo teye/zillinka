@@ -149,9 +149,9 @@ func TestZilManager_ParseResponse(t *testing.T) {
 		{
 			"successfully parses WS response",
 			fields{fq: &filterQuery{}, p: subscriber.WS},
-			args{data: []byte(`{"query":"EventLog","value":[{"address":"0x0000000000000000000000000000000000000000","event_logs":[{"_eventname":"foo1","params":[{"vname":"bar1","type":"String","value":"abc"},{"vname":"bar2","type":"ByStr32","value":"0x0000000000000000000000000000000000000001"}]}]}]}`)},
+			args{data: []byte(`{"type":"Notification","values":[{"query":"EventLog","value":[{"address":"afccafdc1ce8249cec35a0b432e329ce1bfac179","event_logs":[{"_eventname":"request","params":[{"type":"String","value":"TEST","vname":"oracleId"},{"type":"Uint32","value":"0","vname":"requestId"},{"type":"ByStr20","value":"0x1a8ba23182e4686fb8121a310111d03b55c91b46","vname":"initiator"},{"type":"String","value":"kaub","vname":"argument"}]}]}]}]}`)},
 			[]subscriber.Event{
-				subscriber.Event(`{"address":"0x0000000000000000000000000000000000000000","_eventname":"foo1","bar1":"abc","bar2":"0x0000000000000000000000000000000000000001"}`),
+				subscriber.Event(`{"_eventname":"request","address":"afccafdc1ce8249cec35a0b432e329ce1bfac179","argument":"kaub","initiator":"0x1a8ba23182e4686fb8121a310111d03b55c91b46","oracleId":"TEST","requestId":0,"type":"EventLog"}`),
 			},
 			true,
 		},
