@@ -8,12 +8,12 @@ The project is a monorepo containing all components needed to retrieve data from
 
 ### The External Initiator (EI)
 
-[The External Initiator](./external-initiator/README.md) is a server process that can watch contract events via rpc or websocket. The process is spun up, configured with the addresses to watch and once an event is emitted, in our case on the Zilliqa blockchain, the event is retrieved as JSON. The event is then relayed to a registered job definition in the chainlink node. The job relays the data to the nodes' bridge which calls the external adapter.
+[The External Initiator](./external-initiator/README.md) is a server process that can watch contract events via rpc or websocket. The process is spun up, configured with the addresses to watch and once an event is emitted, in our case on the Zilliqa blockchain, the event is retrieved as JSON. The event is then relayed to a registered job definition in the chainlink node. The job relays the data to the nodes' bridge which calls the external adapter. The events on the relay are in Chainlink [standard format](https://docs.chain.link/docs/developers#requesting-data) and are flattened on the EI side. E.g.the json params on the Notification message are flattened to key/value pairs. 
 
 ### The Chainlink Node
 
 [The Chainlink core node](./chainlink-node/README.md) module contains the files to start up a core node. It contains the necessary environment files and the Dockerfile to spin up a container running the core node. The node needs to be configured with the addresses it should listen to (These addresses can be on several chains).
-The core node relays requests from the external initator to the external adapter in this context, besides the general features it provides such as configuration persistence etc.
+The core node relays requests from the external initator to the external adapter in this context, besides the general features it provides such as configuration persistence etc. This module will be wiped once a PR from Chainnlink is accepted.
 
 ### The External Adapter (EA)
 
@@ -33,7 +33,7 @@ As not all modules are fully functional yet the docker-compose file starts up th
 
 Start the infrastructure:
 ```bash
-docker-compose up
+./setup && ./run  
 ```
 Stop the infrastructure:
 ```bash
