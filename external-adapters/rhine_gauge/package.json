@@ -30,7 +30,7 @@
     "mocha": "^7.1.2"
   },
   "mocha": {
-    "timeout": 50000,
-    "slow": 10000
+    "timeout": 200000,
+    "slow": 100000
   }
 }
