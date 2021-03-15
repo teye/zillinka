@@ -65,6 +65,7 @@ services:
       - DATABASE_URL=postgresql://chainlink:password@core-db:5432/chainlink?sslmode=disable
       - FEATURE_EXTERNAL_INITIATORS=true
       - CHAINLINK_DEV=true
+      - ETH_DISABLED=true
     secrets:
       - password
       - apicredentials

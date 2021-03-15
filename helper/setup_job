@@ -12,7 +12,6 @@ setup_job() {
   trap exit_handler EXIT
 
   pushd scripts >/dev/null || exit
-  # Arguments: name, endpoint, address, account
   yarn create-job "$1" "$2" "$3" "$4" "$5" "$6" "$7" | tee "$log"
   popd >/dev/null || exit
 
