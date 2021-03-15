@@ -2,96 +2,99 @@
 
 Unix time is the number of seconds since  January 1st, 1970 at UTC, see https://www.unixtimestamp.com/ .
 
-Fetches the unix time for central Europe time zone from the api  
-"http://worldtimeapi.org/api/timezone/Europe/Berlin" (timezone for central Europe CEST).
+This adapter fetches the unix time from the api  
+"http://worldtimeapi.org/api/timezone/Europe/Berlin" (timezone for central Europe CEST, irrelevant for unix time).
 
-It writes the unix time back to a contract on the Zilliqa blockchain. Run all commands below inside the subdirectory `unixtime`!
-## Install Locally
+The adapter then writes the unix time to a oracle contract on the Zilliqa blockchain. 
+
+To run the adapter there are three possibilities:
+- through the oracle contract
+- through a client contract
+- in isolation (without the external initiator)
+
+
+## Trigger the request directly on the oracle contract
+Call the transition `request()` in the smart contract [Oracle](./scilla/Oracle.scilla). The unix time is available in the `field data_requests` in the entry corresponding to the latest `requestId`, as in the emitted event.
+
+## Trigger the request from a client contract
+Call the transition `data_request()` in the smart contract [OracleClient](./scilla/OracleClient.scilla). 
+
+This sends a message to the [Oracle](./scilla/Oracle.scilla) invoking its transition `request()`. Here, the unix time is at the end available in the client contract in the `field all_data` (and also in the oracle contract as above).
+
+
+## To run the adapter in isolation (without the external initiator)
+
+### Install Locally
 Install dependencies:
 
 ```bash
 yarn
 ```
 
-## Test
-Run the local tests:
+### Tests (optional)
+Run the local tests (note that they take a while as several blockchain transactions are involved and the tests are run on the Zilliqa testnet with a blocktime of ~ 45 seconds):
 
 ```bash
 yarn test
 ```
-## Start Service
+### Start Service
 
 Start the service:
 ```bash
 yarn start
 ```
 
-## Input Params
+### Call the external adapter/API server
 
-- currently none
-
-## Call the external adapter/API server
-### on Linux
 Make curl call inside the same subdirectory `unixtime` in a different terminal:
 ```bash
-curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data":  { "reqID": 0}  }'
+curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data":  { "requestId": 0} }'
 ```
-### on Windows (in a power shell)
-```bash
- Invoke-WebRequest "http://localhost:8080/" -Method POST -Headers @{"Content-Type"="application:json"} -body @{"id"=0; "data"={};}
- ```
 
-## Output
-### on Linux
+### Outputin the terminal/shell where ```yarn start``` was executed
+The output can be used to check that the oracle contract has at the end the correct unix time stored: this is done by querying the contract's state at the very end.
+
+` ====> Request: = `
 ```json
+{"id":0,"data":{"requestId":0}}
+
+{"message":"Received response: {\"abbreviation\":\"CET\",\"client_ip\":\"85.5.161.167\",\"datetime\":\"2021-03-15T17:24:19.428019+01:00\",\"day_of_week\":1,\"day_of_year\":74,\"dst\":false,\"dst_from\":null,\"dst_offset\":0,\"dst_until\":null,\"raw_offset\":3600,\"timezone\":\"Europe/Berlin\",\"unixtime\":1615825459,\"utc_datetime\":\"2021-03-15T16:24:19.428019+00:00\",\"utc_offset\":\"+01:00\",\"week_number\":11}","level":"info","timestamp":"2021-03-15T16:24:19.471Z"}
+
 Result:  {
   jobRunID: 0,
   data: {
     abbreviation: 'CET',
     client_ip: '85.5.161.167',
-    datetime: '2021-02-17T17:19:59.171527+01:00',
-    day_of_week: 3,
-    day_of_year: 48,
+    datetime: '2021-03-15T17:24:19.428019+01:00',
+    day_of_week: 1,
+    day_of_year: 74,
     dst: false,
     dst_from: null,
     dst_offset: 0,
     dst_until: null,
     raw_offset: 3600,
     timezone: 'Europe/Berlin',
-    unixtime: 1613578799,
-    utc_datetime: '2021-02-17T16:19:59.171527+00:00',
+    unixtime: 1615825459,
+    utc_datetime: '2021-03-15T16:24:19.428019+00:00',
     utc_offset: '+01:00',
-    week_number: 7,
-    result: 1613578799
+    week_number: 11,
+    result: 1615825459
   },
-  result: 1613578799,
+  result: 1615825459,
   statusCode: 200
 }
 
-```
-### on Windows (result is in "Content")
-``
-StatusCode        : 200
-StatusDescription : OK
-Content           : {"jobRunID":"1","data":{"abbreviation":"CET","client_ip":"85.5.161.167","datetime":"2021-02-19T10
-                    :01:23.058483+01:00","day_of_week":5,"day_of_year":50,"dst":false,"dst_from":null,"dst_offset":0,
-                    "dst_u...
-RawContent        : HTTP/1.1 200 OK
-                    Connection: keep-alive
-                    Keep-Alive: timeout=5
-                    Content-Length: 424
-                    Content-Type: application/json; charset=utf-8
-                    Date: Fri, 19 Feb 2021 09:01:23 GMT
-                    ETag: W/"1a8-3wNQYP93DwBHerWgct...
-Forms             : {}
-Headers           : {[Connection, keep-alive], [Keep-Alive, timeout=5], [Content-Length, 424], [Content-Type,
-                    application/json; charset=utf-8]...}
-Images            : {}
-InputFields       : {}
-Links             : {}
-ParsedHtml        : mshtml.HTMLDocumentClass
-RawContentLength  : 424
-``
-### and on both platforms in the terminal/shell where you have executed ```yarn start```
+ ===> unix time is 1615825459
 
-`===> unix time is 1613578799`
+ ===> calling set_data(1615825459, 0) to write to oracle contract @  0xAA28674d160a7B74cd6b3eEdcE733AC5c01Cd26a
+
+ ====> tx successful: querying state
+
+ ====> in oracle state: value field of entry in DataRequest map for request with id = 0
+
+{
+  argtypes: [ 'Uint128' ],
+  arguments: [ '1615825459' ],
+  constructor: 'Some'
+}
+```
