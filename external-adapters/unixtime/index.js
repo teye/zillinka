@@ -21,7 +21,6 @@ zilliqa_chain.wallet.addByPrivateKey(bc_secrets.privateKey);
 const oracle_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.unixTimeOracle);
 const version = bytes.pack(bc_secrets.zilliqa.chainId, bc_secrets.zilliqa.msgVersion);
 
-
 // Define custom error scenarios for the API.
 // Return true for the adapter to retry.
 const customError = (data) => {
