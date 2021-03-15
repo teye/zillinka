@@ -1,24 +1,24 @@
-/* test connection to block chain and set up of accounts */
+/* test connection to block chain and set up of account */
 var assert = require('assert');
+const {bc_secrets} = require("../../../secrets/blockchain.js");
 
 const {setup_chain_and_wallet} = require("../../commons/utils_zil.js");
-const {zilBalanceForKey} = require("../../commons/chk_balances.js");
 
-describe("Basic connection to blockchain and set up of accounts", function () {
 
-  async function chk_for_key(use_testnet)
-  {
-    const setup = setup_chain_and_wallet(use_testnet);
-    const b = await zilBalanceForKey(setup.privateKey, setup.zilliqa, false);
-    assert(b > 0.0, `balance for key ${setup.privateKey} is 0`);
-  }
+const { getAddressFromPrivateKey } = require('@zilliqa-js/crypto');
+const { BN, units } = require('@zilliqa-js/util');
 
-  it("should be able to get the balances on isolated server and should be non-zero", async function() {
-    await chk_for_key(false);
-  });
+describe("Basic connection to blockchain and set up of account", function () {
 
   it("should be able to get the balances on testnet and should be non-zero", async function() {
-    await chk_for_key(true);
+    const key = bc_secrets.privateKey;
+    const setup = setup_chain_and_wallet(true);
+    const addr = getAddressFromPrivateKey(key);
+    const balance = await setup.zilliqa.blockchain.getBalance(addr);
+    let b_zil = new BN(balance.result.balance);
+    b_zil = units.fromQa(b_zil, 'zil');
+    console.log(`  ... > balance of ${addr}: ${b_zil} ZIL`);
+    assert(b_zil > 0.0, `balance for key ${key} is not positive`);
   });
 
 });
