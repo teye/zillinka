@@ -1,14 +1,20 @@
-/* test the oracle and the client contract, and the JS functions to deploy and interact */
+/* test the oracle and the client smart contracts */
 var assert = require('assert');
-
-const {StringFromFile} = require("../../commons/utils.js");
+const fs = require('fs');
+const { BN, Long, units } = require('@zilliqa-js/util');
+const { getPubKeyFromPrivateKey} = require('@zilliqa-js/crypto');
 const {
   setup_chain_and_wallet,
   deploy_contract,
-  call_contract} = require("../../commons/utils_zil.js");//const inter = require("./../interact.js");
+  call_contract} = require("../../commons/utils_zil.js");
 
-const { BN, Long, units } = require('@zilliqa-js/util');
-const {  getPubKeyFromPrivateKey} = require('@zilliqa-js/crypto');
+function StringFromFile(f) {
+  t = fs.readFileSync(f, 'utf8', (err,txt) => {
+    if (err) throw err;
+    console.log("file read. length of file = $(text.length)");
+  });
+  return t;
+}
 
 describe("Oracle and OracleClient for Unix Time", function () {
 

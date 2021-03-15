@@ -5,7 +5,6 @@
 */
 
 const fetch = require('isomorphic-fetch');
-const utils = require("./utils.js");
 
 async function json_obj(url, verbose = false)
 {
