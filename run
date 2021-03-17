@@ -7,8 +7,6 @@ source ./helper/common
 run() {
   trap exit_handler EXIT
 
-  mkdir -p "$LOG_PATH"
-  
   title "Initiating a fresh test"
 
   # Remove old volumes so we can run a fresh test
