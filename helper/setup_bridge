@@ -12,7 +12,7 @@ setup_bridge() {
   trap exit_handler EXIT
 
   pushd scripts >/dev/null || exit
-  # Arguments: name, endpoint, address, account
+  # Arguments: name, endpoint
   yarn create-bridge "$1" "$2" | tee "$log"
   popd >/dev/null || exit
 

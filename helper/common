@@ -54,7 +54,7 @@ login_chainlink() {
 
 run_ei() {
   title "Running External Initiator..."
-
+  echo "Path: " $(pwd)
   if [ "$EI_CI_ACCESSKEY" != "" ]; then
     {
       echo "EI_CI_ACCESSKEY=$EI_CI_ACCESSKEY"
@@ -71,6 +71,7 @@ run_ei() {
 
 add_ei() {
   title "Adding External Initiator to Chainlink node..."
+
   pushd scripts >/dev/null || exit
 
   local log=$LOG_PATH/add_ei.log
@@ -84,6 +85,7 @@ add_ei() {
 
   echo "EI has been added to Chainlink node"
   popd >/dev/null || exit
+
   title "Done adding EI."
 }
 
