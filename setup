@@ -9,8 +9,6 @@ run_setup() {
 
   title "Setting up test environment"
 
-  touch external_initiator.env
-
   pushd scripts >/dev/null || exit
   local log=$LOG_PATH/integration_setup.log
   yarn install
