@@ -113,9 +113,9 @@ const createRequest = (input, callback) => {
         { vname: 'data',      type: 'Uint128',  value: level.toString() },
         { vname: 'request_id', type: 'Uint32',   value: config.params.requestId.toString()},
      ];
-     const gas_price = units.toQa('5000', units.Units.Li);
-     const gas_limit = Long.fromNumber(50000);
-     const attempts = Long.fromNumber(20);
+     const gas_price = units.toQa('10000', units.Units.Li);
+     const gas_limit = Long.fromNumber(100000);
+     const attempts = Long.fromNumber(50);
      const pub_key = getPubKeyFromPrivateKey(bc_secrets.privateKey);
      console.log(` ===> calling set_data(${level}, ${config.params.requestId}) to write to oracle contract @  ${oracle_sc.address}`);
 
