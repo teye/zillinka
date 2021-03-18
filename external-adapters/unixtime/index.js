@@ -49,10 +49,6 @@ const createRequest = (input, callback) => {
   const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);
   bc_setup.zilliqa.wallet.addByPrivateKey(bc_setup.privateKey);
   const oracle_sc = bc_setup.zilliqa.contracts.at(oracle_address);
-  const gas_price = units.toQa('5000', units.Units.Li);
-  const gas_limit = Long.fromNumber(50000);
-  const attempts = Long.fromNumber(10);
-
 
   // The Requester allows API calls be retry in case of timeout
   // or connection failure
@@ -77,9 +73,9 @@ const createRequest = (input, callback) => {
       // transition set_data(data: Uint128, request_id: Uint32)
       console.log(` ===> calling set_data(${uxt}, ${config.params.requestId}) to write to oracle contract @  ${oracle_sc.address}`);
       const tx_settings = {   // use same settings for all transactions
-        "gas_price": units.toQa('5000', units.Units.Li),
-        "gas_limit": Long.fromNumber(50000),
-        "attempts": Long.fromNumber(25),
+        "gas_price": units.toQa('10000', units.Units.Li),
+        "gas_limit": Long.fromNumber(100000),
+        "attempts": Long.fromNumber(50),
       };
       const args = [
         { vname: 'data',      type: 'Uint128',  value: uxt.toString() },
