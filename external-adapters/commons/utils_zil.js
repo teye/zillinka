@@ -19,8 +19,8 @@ function setup_chain_and_wallet(/*bool*/testnet)
   else { // Isolated server / Simulated ENV
     zilliqa_chain = new Zilliqa('https://zilliqa-isolated-server.zilliqa.com/');
     chainId = 222;
-    privateKey = // corresponding address: 0x2CdBC15AA0BE9C7476731C53696CA579D479ffCA
-    '216065ac2352567ba9bb1d9e4e0220819671da37ebfd1fff6a6facfe5ede5784';
+    privateKey = // corresponding address: 0x0427fd49d99d8eBDdC7827ECa98AC01D19601E5d
+    'c0f1b81c2b541fed2d75d9eae6e096fa1b74b0ec0add48e1543e70ebfaaeed99';
     uxt_oracle_addr = '0x827c1f98a934de858f875c0d7a489a24a1d119ed';
     uxt_oracle_client_addr = '0xb80ad4de4ace27c7313d2439d8615ce7bad9a23d';
     rhine_oracle_addr = '0x7eabaf2ac5b9a415e27c1e78cf9d831e46446f5b';
@@ -47,7 +47,7 @@ async function deploy_contract(/*string*/sc_string, /*JSON*/init, /*JSON*/ bc_se
   const contract = bc_setup.zilliqa.contracts.new(sc_string, init);
   const [tx, sc] = await contract.deploy(
     { version: bc_setup.VERSION, gasPrice: tx_settings.gas_price, gasLimit: tx_settings.gas_limit, },
-    tx_settings.attempts, 1000, false,
+    tx_settings.attempts, 1000, true,
   );
   return [tx, sc];
 }
@@ -61,7 +61,7 @@ async function call_contract( /*contract*/sc, /*string*/transition_name, /*array
      args,
      { version: bc_setup.VERSION, amount: amt_as_BN, gasPrice: tx_settings.gas_price,
        gasLimit: tx_settings.gas_limit, pubKey: caller_pub_key, },
-     tx_settings.attempts, 1000, false,
+     tx_settings.attempts, 1000, true,
    );
    return tx;
 }
