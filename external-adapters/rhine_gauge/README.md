@@ -9,6 +9,19 @@ To run the adapter there are three possibilities:
 - through a client contract
 - in isolation (without the external initiator)
 
+## Requirements
+The client needs to implement the callback to receive the data together with the date the pegel level was requested for from the oracle:
+```code
+transition callback_data(data: Uint128, date: String)
+```
+In order to request the pegel gauge level for a specific date the client contract needs to call the oracle's `transition request(date: String)` where the `date` is in the format of a date string: yyyy-mm-dd. An example message to request the level for March 10, 2021 (i.e., `d = '2021-03-10`) from the oracle deployed at address `to` is, see 
+`transition data_request(date: String)` in [OracleClient](./scilla/OracleClient.scilla):
+```code
+zero128 = = Uint128 0;
+msg = {_tag: "request"; _recipient: to; _amount: zero128 ; date: d};
+
+```
+
 
 ## Trigger the request directly on the oracle contract
 Call the transition `request(date: String)` in the smart contract [Oracle](./scilla/Oracle.scilla) with a date in the format 'yyyy-mm-dd' in the past. The pegel level is available in the `field data_requests` in the entry corresponding to the latest `requestId`, as in the emitted event.

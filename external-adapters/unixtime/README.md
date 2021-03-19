@@ -12,7 +12,18 @@ To run the adapter there are three possibilities:
 - through a client contract
 - in isolation (without the external initiator)
 
+## Requirements
+The client needs to implement the callback to receive the data (i.e. the unix time) from the oracle:
+```code
+transition callback_data(data: Uint128)
+```
+In order to request the current unix time the client contract needs to call the oracle's `transition request()`. An example message to request the current unix time from the oracle deployed at address `to` is, see 
+`transition data_request()` in [OracleClient](./scilla/OracleClient.scilla):
+```code
+zero128 = Uint128 0;
+msg = {_tag: "request"; _recipient: to; _amount: zero128};
 
+```
 ## Trigger the request directly on the oracle contract
 Call the transition `request()` in the smart contract [Oracle](./scilla/Oracle.scilla). The unix time is available in the `field data_requests` in the entry corresponding to the latest `requestId`, as in the emitted event.
 
