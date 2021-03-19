@@ -23,7 +23,7 @@ type Options = {
 async function addExternalInitiator({ initiatorUrl, chainlinkUrl }: Options) {
   const eiUrl = url.resolve(chainlinkUrl, '/v2/external_initiators')
   const data = {
-    name: 'mock-client',
+    name: 'zil',
     url: url.resolve(initiatorUrl, '/jobs'),
   }
   const sessionsUrl = url.resolve(chainlinkUrl, '/sessions')

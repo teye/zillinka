@@ -7,6 +7,8 @@ source ./helper/common
 run() {
   trap exit_handler EXIT
 
+  touch external_initiator.env
+
   mkdir -p "$LOG_PATH"
   
   title "Initiating a fresh test"
@@ -30,7 +32,6 @@ run() {
   # Arguments: name, endpoint, addresses, address, accountIds, bridge
   ./helper/setup_job "zil" "zil-ws" "0xaa28674d160a7b74cd6b3eedce733ac5c01cd26a" "" "" "zil-unixtime-bridge"
   ./helper/setup_job "zil" "zil-ws" "0xbd0a71b5490291cf99b00a733068627abdac6fcc" "" "" "zil-rhine-gauge-bridge"
-
   title "Started up"
 }
 

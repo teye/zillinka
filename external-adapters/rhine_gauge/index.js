@@ -88,6 +88,8 @@ const createRequest = (input, callback) => {
     params
   }
 
+  // The Requester allows API calls be retry in case of timeout
+  // or connection failure
   Requester.request(config, customError)
     .then(response => {
       const entry = findValueAtTime(response.data, params.date, params.time); // extract value at noon on target date
@@ -108,7 +110,6 @@ const createRequest = (input, callback) => {
     })
 
     .then( level => { // call the contract on chain to write the uxt on chain:
-      // transition set_data(data: Uint128, request_id: Uint32)
       const args = [
         { vname: 'data',      type: 'Uint128',  value: level.toString() },
         { vname: 'request_id', type: 'Uint32',   value: config.params.requestId.toString()},
@@ -124,14 +125,11 @@ const createRequest = (input, callback) => {
        args,
        { version: version, amount: new BN(0), gasPrice: gas_price,
          gasLimit: gas_limit, pubKey: pub_key, },
-      attempts, 1000, false,
+      attempts, 1000, true,
      );
     })
     .then( (tx) => {
       return new Promise(function(resolve, reject) {
-        function r(msg) {
-
-        }
         if (typeof tx === 'undefined' ||tx === null) {
           console.log(` ====> tx NOT successful`);
           reject('tx is not defined or null');

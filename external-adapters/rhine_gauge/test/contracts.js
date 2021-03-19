@@ -14,7 +14,7 @@ async function call_contract(sc, transition_name, args, amt_as_BN,
      args,
      { version: version, amount: amt_as_BN, gasPrice: tx_settings.gas_price,
        gasLimit: tx_settings.gas_limit, pubKey: caller_pub_key, },
-     tx_settings.attempts, 1000, false,
+     tx_settings.attempts, 1000, true,
    );
    return tx;
 }
@@ -24,9 +24,9 @@ describe("Oracle and OracleClient for Rhine Gauge", function () {
   let zilliqa_chain = new Zilliqa(bc_secrets.zilliqa.api);
   const VERSION = bytes.pack(bc_secrets.zilliqa.chainId, bc_secrets.zilliqa.msgVersion);
   const tx_settings = {
-    "gas_price": units.toQa('5000', units.Units.Li),
-    "gas_limit": Long.fromNumber(50000),
-    "attempts": Long.fromNumber(20),
+    "gas_price": units.toQa('10000', units.Units.Li),
+    "gas_limit": Long.fromNumber(100000),
+    "attempts": Long.fromNumber(50),
   };
 
   const d = new Date(Date.now() - 86400000);

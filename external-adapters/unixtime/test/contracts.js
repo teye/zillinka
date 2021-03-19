@@ -24,9 +24,9 @@ describe("Oracle and OracleClient for Unix Time", function () {
   let zilliqa_chain = new Zilliqa(bc_secrets.zilliqa.api);
   const VERSION = bytes.pack(bc_secrets.zilliqa.chainId, bc_secrets.zilliqa.msgVersion);
   const tx_settings = {
-    "gas_price": units.toQa('5000', units.Units.Li),
-    "gas_limit": Long.fromNumber(50000),
-    "attempts": Long.fromNumber(20),
+    "gas_price": units.toQa('10000', units.Units.Li),
+    "gas_limit": Long.fromNumber(100000),
+    "attempts": Long.fromNumber(50),
   };
 
 

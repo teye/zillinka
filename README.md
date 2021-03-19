@@ -17,12 +17,12 @@ The core node relays requests from the external initator to the external adapter
 
 ### The External Adapter (EA)
 
-In the current configuration [the external adapter](./external-adapter/README.md) is called by the core node and sends a request to the external adapter, the EA calls the REST API that requests data from a public REST API.
+In the current configuration [the external adapter](./external-adapters/README.md) is called by the core node and sends a request to the external adapter, the EA calls the REST API that requests data from a public REST API.
 The EA receives the response from the public REST API and initiates a call with the Zilliqa client which executes a transaction on the Zilliqa blockchain thereby completing the call graph.
 
 ## Starting the modules
 
-Starting the infrastructure is a complete process, e.g. all required configurations are executed, you can change most of them in the run file, which let's you change the bridge configuration that defines the external api address and the addresses it needs to listen to via the [Zilliqa websocket API](https://dev.zilliqa.com/docs/dev/dev-tools-websockets/#subscribe-event-log)
+Starting the infrastructure is a complete process, e.g., all required configurations are executed. You can change most of them in the run file, which let's you change the bridge configuration that defines the external api address, and the addresses it needs to listen to via the [Zilliqa websocket API](https://dev.zilliqa.com/docs/dev/dev-tools-websockets/#subscribe-event-log)
 
 ### Prerequisites
 

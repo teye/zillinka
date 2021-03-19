@@ -2,6 +2,7 @@ const assert = require('chai').assert
 const createRequest = require('../index.js').createRequest
 
 describe('createRequest', () => {
+  
   const jobID = '1'
   const reqID = '0'
 
@@ -47,4 +48,5 @@ describe('createRequest', () => {
       })
     })
   })
+
 })

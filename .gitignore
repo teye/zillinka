@@ -1,4 +1,5 @@
-.geth-data
+.idea
 tmp
+.geth-data
 cl_login.txt
 external_initiator.env
