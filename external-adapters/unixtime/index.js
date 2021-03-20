@@ -9,10 +9,17 @@
 */
 
 const { Requester, Validator } = require('@chainlink/external-adapter')
-const {  getPubKeyFromPrivateKey } = require('@zilliqa-js/crypto');
-const { BN, Long, units } = require('@zilliqa-js/util');
-const { setup_chain_and_wallet, call_contract} = require('../commons/utils_zil.js')
+const { Zilliqa } = require('@zilliqa-js/zilliqa')
+const {  getPubKeyFromPrivateKey } = require('@zilliqa-js/crypto')
+const { BN, Long, units, bytes } = require('@zilliqa-js/util');
 const {JSONPath} = require('jsonpath-plus');
+const {bc_secrets} = require("../../secrets/blockchain.js");
+
+// set up zilliqa bc
+let zilliqa_chain = new Zilliqa(bc_secrets.zilliqa.api);
+zilliqa_chain.wallet.addByPrivateKey(bc_secrets.privateKey);
+const oracle_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.unixTimeOracle);
+const version = bytes.pack(bc_secrets.zilliqa.chainId, bc_secrets.zilliqa.msgVersion);
 
 // Define custom error scenarios for the API.
 // Return true for the adapter to retry.
@@ -42,22 +49,14 @@ const createRequest = (input, callback) => {
     params
   }
 
-  // FMB zilliqa bc stuff
-  const use_testnet = true;
-  const bc_setup = setup_chain_and_wallet(use_testnet); // which chain to use, fill wallet, etc
-  const oracle_address = bc_setup.addresses.UnixTimeOracle;
-  const pub_key = getPubKeyFromPrivateKey(bc_setup.privateKey);
-  bc_setup.zilliqa.wallet.addByPrivateKey(bc_setup.privateKey);
-  const oracle_sc = bc_setup.zilliqa.contracts.at(oracle_address);
-
   // The Requester allows API calls be retry in case of timeout
   // or connection failure
   Requester.request(config, customError)
     .then(response => {
-      response.data.result = Requester.validateResultNumber(response.data, ["unixtime"]) // FMB: extract unixtime from json
+      response.data.result = Requester.validateResultNumber(response.data, ["unixtime"]) // extract unixtime from json
       callback(response.status, Requester.success(jobRunID, response));
 
-      // FMB: Take the result and send it to Zilliqa oracle contract
+      // Take the result and send it to Zilliqa oracle contract
       const uxt = response.data.result;
       console.log(` ===> unix time is ${uxt}`);
       return new Promise(function(resolve, reject) {
@@ -70,24 +69,26 @@ const createRequest = (input, callback) => {
       });
     })
     .then( uxt => { // call the contract on chain to write the uxt on chain:
-      // transition set_data(data: Uint128, request_id: Uint32)
-      console.log(` ===> calling set_data(${uxt}, ${config.params.requestId}) to write to oracle contract @  ${oracle_sc.address}`);
-      const tx_settings = {   // use same settings for all transactions
-        "gas_price": units.toQa('10000', units.Units.Li),
-        "gas_limit": Long.fromNumber(100000),
-        "attempts": Long.fromNumber(50),
-      };
       const args = [
         { vname: 'data',      type: 'Uint128',  value: uxt.toString() },
         { vname: 'request_id', type: 'Uint32',   value: config.params.requestId.toString()},
-     ];
-      return call_contract(oracle_sc, 'set_data', args, new BN(0), pub_key, bc_setup, tx_settings);
+      ];
+      const gas_price = units.toQa('10000', units.Units.Li);
+      const gas_limit = Long.fromNumber(100000);
+      const attempts = Long.fromNumber(50);
+      const pub_key = getPubKeyFromPrivateKey(bc_secrets.privateKey);
+      console.log(` ===> calling set_data(${uxt}, ${config.params.requestId}) to write to oracle contract @  ${oracle_sc.address}`);
+
+      return oracle_sc.call(
+        'set_data',
+        args,
+        { version: version, amount: new BN(0), gasPrice: gas_price,
+          gasLimit: gas_limit, pubKey: pub_key, },
+       attempts, 1000, true,
+      );
     })
     .then( (tx) => {
       return new Promise(function(resolve, reject) {
-        function r(msg) {
-
-        }
         if (typeof tx === 'undefined' ||tx === null) {
           console.log(` ====> tx NOT successful`);
           reject('tx is not defined or null');

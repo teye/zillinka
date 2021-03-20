@@ -18,7 +18,7 @@ The core node relays requests from the external initator to the external adapter
 ### The External Adapter (EA)
 
 In the current configuration [the external adapter](./external-adapters/README.md) is called by the core node and sends a request to the external adapter, the EA calls the REST API that requests data from a public REST API.
-The EA receives the response from the public REST API and initiates a call with the Zilliqa client which executes a transaction on the Zilliqa blockchain thereby completing the call graph.
+The EA receives the response from the public REST API and initiates a call with the Zilliqa client which executes a transaction on the Zilliqa blockchain thereby completing the call graph. The EA's are based on the NodJS tempates for adapters and can be found [here](https://github.com/thodges-gh/CL-EA-NodeJS-Template).
 
 ## Starting the modules
 
@@ -33,7 +33,7 @@ Starting the infrastructure is a complete process, e.g., all required configurat
 
 Start the infrastructure:
 ```bash
-./setup && ./run  
+./run  
 ```
 Stop the infrastructure:
 ```bash
@@ -48,12 +48,12 @@ Stop the infrastructure:
 
 ### Setup
 
-The setup process creates several integration links while it sets up the infrastructure:
+### Run
+
+The setup process (included in the run file) bootstraps the components and creates several integration links while it sets up the infrastructure:
 - It creates an external_initiator.env file to share the credentials between the external initiator and the chainlink node
 - Builds the yarn packages and installation
 - Builds the docker images
-
-### Run
 
 The run process configures the chainlink node finally with the credentials of the external initiator and the configuration of the components for the integration:
 - Reset old docker volumes and start docker compose

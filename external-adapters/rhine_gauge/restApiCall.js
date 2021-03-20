@@ -1,7 +1,20 @@
-const {json_obj} = require("../commons/fetch_json.js");
+const fetch = require('isomorphic-fetch');
+
+async function json_obj(url)
+{
+  try {
+    const response = await fetch(url);
+    const json = await response.json();
+    const str = JSON.stringify(json);
+    const obj = JSON.parse(str);
+    return obj;
+  } catch (err) {
+      throw Error("Could not get json from web API. err is: " + err);
+  }
+}
 
 // Rhine level at kaub station at noon (CET) for a given date in the format yyyy-mm-dd
-async function getRhineLevel(/*string*/target_date, verbose = false)
+async function getRhineLevel(/*string*/target_date)
 {
   function findValueAtNoon(obj, /*string*/ target_date)
   {
@@ -32,7 +45,6 @@ async function getRhineLevel(/*string*/target_date, verbose = false)
   }
 
   const kaub = "1d26e504-7f9e-480a-b52c-5932be6549ab";
-  //  const koeln = "a6ee8177-107b-47dd-bcfd-30960ccc6e9c";
   const target_time = "T12:00:00+01:00"; // noon at UTC + 1h, i.e. central europe
   try {
     const station_id = kaub;
@@ -43,11 +55,8 @@ async function getRhineLevel(/*string*/target_date, verbose = false)
       + target_date
       + target_time;
 
-    const obj = await json_obj(url, verbose);
+    const obj = await json_obj(url);
     const res = findValueAtNoon(obj, target_date);
-    if (verbose) {
-      console.log(`  .. level at noon: ${res.ds}: level = ${res.value}`);
-    }
     return res.value;
   } catch (err) {
     throw Error("Could not get Rhine level at Noon. err is: " + err);
@@ -55,5 +64,3 @@ async function getRhineLevel(/*string*/target_date, verbose = false)
 }
 
 exports.getRhineLevel = getRhineLevel;
-
-//getRhineLevel("2021-02-04", true);
