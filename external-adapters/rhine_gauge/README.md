@@ -89,6 +89,6 @@ Result:  {
  ===> calling set_data(173, 0) to write to oracle contract @  0xbd0a71b5490291cF99B00A733068627abdac6fcc
  ====> tx successful: querying state
  ====> in oracle state: entry in DataRequest map for request with id = 0
-       date is: 2021-03-04
+       date is: 2021-03-12
        pegel level is: 173
 ```
