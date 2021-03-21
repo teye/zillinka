@@ -29,7 +29,7 @@ run() {
   touch external_initiator.env
 
   mkdir -p "$LOG_PATH"
-  
+
   title "Initiating a fresh test"
 
   # Remove old volumes so we can run a fresh test
@@ -49,8 +49,8 @@ run() {
   ./helper/setup_bridge "zil-rhine-gauge-bridge" "http://external-adapter-rhine_gauge:8080"
 
   # Arguments: name, endpoint, addresses, address, accountIds, bridge
-  ./helper/setup_job "zil" "zil-ws" "0xaa28674d160a7b74cd6b3eedce733ac5c01cd26a" "" "" "zil-unixtime-bridge"
-  ./helper/setup_job "zil" "zil-ws" "0xbd0a71b5490291cf99b00a733068627abdac6fcc" "" "" "zil-rhine-gauge-bridge"
+  ./helper/setup_job "zil" "zil-ws" "0x10281c73644ea6749087720b2bf9c539a3a99bfb" "" "" "zil-unixtime-bridge"
+  ./helper/setup_job "zil" "zil-ws" "0x1594fdfc6eb2a3dc710b8f65bb327c910d82577e" "" "" "zil-rhine-gauge-bridge"
   title "Started up"
 }
 

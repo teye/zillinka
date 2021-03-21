@@ -8,8 +8,6 @@ scilla_version 0
 (*  offering a transition: data_request(date: String)               *)
 (********************************************************************)
 
-(*import ListUtils IntUtils BoolUtils *)
-
 library OracleClient
 
 let zero128 = Uint128 0 (* used for zero amounts *)
@@ -22,14 +20,13 @@ let one_msg = (* Wrap single message into singleton list *)
 contract OracleClient
 (oracle_address_at_deployment: ByStr20)
 
-
 (* addresses of the oracle *)
 field oracle_address : ByStr20 = oracle_address_at_deployment
-(* store all data received from the oracle, newest data in front *)
-field all_data : Map String Uint128 = Emp String Uint128 (* m[date] = data *)
+(* store all data received from the oracle, mapped to the date *)
+field all_data : Map String Uint128 = Emp String Uint128 (* all_data[date] = data *)
 
-(* @notice: request data from an oracle                     *)
-(* @param:  date : target date in the format "yyyy-mm-dd"   *)
+(* @notice: request data from an oracle                             *)
+(* @param:  date : target date in the format "yyyy-mm-dd"           *)
 transition data_request(date: String)
   to <- oracle_address;
   msg = {_tag: "request"; _recipient: to; _amount: zero128 ; date: date};
@@ -37,17 +34,17 @@ transition data_request(date: String)
   send msgs
   end
 
-(* @notice: change the oracle addresse                  *)
-(* @param:  new_address : oracle contract's address     *)
+(* @notice: change the oracle addresse                              *)
+(* @param:  new_address : oracle contract's address                 *)
 transition change_oracle(new_address : ByStr20)
   oracle_address := new_address;
   ev = {_eventname: "change_oracle"; new_oracle_address: new_address};
   event ev
 end
 
-(* @notice: callback function that oracle calls with the data when asked for it *)
-(* @param:  data : the value of the data requested                              *)
-(* @param:  date : date that was sent whe requesting a data                     *)
+(* @notice: callback function called by oracle with the data        *)
+(* @param:  data : the gauge level for the date requested           *)
+(* @param:  date : date that was emitted with the request           *)
 transition callback_data(data: Uint128, date: String)
   all_data[date] := data;
   ev = {_eventname : "callback_data"; data_received: data; date_received: date};
