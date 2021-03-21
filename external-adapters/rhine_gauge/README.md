@@ -2,19 +2,25 @@
 
 Fetches the gauge level of river Rhine at Kaub station at a given date at noon (UTC + 1, i.e. central Europe standard time), see ""https://www.pegelonline.wsv.de/". The date is a parameter given as a string in the format "yyyy-mm-dd".
 
-The adapter then writes the unix time to a oracle contract on the Zilliqa blockchain. 
+The adapter then writes the unix time to a oracle contract on the Zilliqa blockchain.
 
 To run the adapter there are three possibilities:
 - through the oracle contract
 - through a client contract
 - in isolation (without the external initiator)
 
+### Note 
+Choose a "meaningful" date to request a gauge level:
+- Ensure the date chosen is not too far in the past as the api may no longer provide the corresponding gauge level. A date within the past two months should always work.
+- Make sure that the date is not in the future, and do not choose
+the actual date if noon (UTC +1) has not yet passed (as the gauge level will of course not yet be avalable!).
+
 ## Requirements
 The client needs to implement the callback to receive the data together with the date the pegel level was requested for from the oracle:
 ```code
 transition callback_data(data: Uint128, date: String)
 ```
-In order to request the pegel gauge level for a specific date the client contract needs to call the oracle's `transition request(date: String)` where the `date` is in the format of a date string: yyyy-mm-dd. An example message to request the level for March 10, 2021 (i.e., `d = '2021-03-10`) from the oracle deployed at address `to` is, see 
+In order to request the pegel gauge level for a specific date the client contract needs to call the oracle's `transition request(date: String)` where the `date` is in the format of a date string: yyyy-mm-dd. An example message to request the level for March 10, 2021 (i.e., `d = '2021-03-10'`) from the oracle deployed at address `to` is, see
 `transition data_request(date: String)` in [OracleClient](./scilla/OracleClient.scilla):
 ```code
 zero128 = = Uint128 0;
@@ -27,7 +33,7 @@ msg = {_tag: "request"; _recipient: to; _amount: zero128 ; date: d};
 Call the transition `request(date: String)` in the smart contract [Oracle](./scilla/Oracle.scilla) with a date in the format 'yyyy-mm-dd' in the past. The pegel level is available in the `field data_requests` in the entry corresponding to the latest `requestId`, as in the emitted event.
 
 ## Trigger the request from a client contract
-Call the transition `data_request(date: String)` in the smart contract [OracleClient](./scilla/OracleClient.scilla) with a date in the format 'yyyy-mm-dd' in the past. 
+Call the transition `data_request(date: String)` in the smart contract [OracleClient](./scilla/OracleClient.scilla) with a date in the format 'yyyy-mm-dd' in the past.
 
 This sends a message to the [Oracle](./scilla/Oracle.scilla) invoking its transition `request(date: String)` with the given date. Here, the pegel level is at the end available in the client contract in the `field all_data` (and also in the oracle contract as above).
 
@@ -65,7 +71,7 @@ The output can be used to check that the oracle contract has at the end the corr
 
 ` ====> Request: = `
 ```json
-{ id: 0, data: { requestId: 0, date: '2021-03-12' } 
+{ id: 0, data: { requestId: 0, date: '2021-03-12' }
 ```
 ```json
 {"message":"Received response: ... a list of pegel/gauge levels for different timestamps ... }
