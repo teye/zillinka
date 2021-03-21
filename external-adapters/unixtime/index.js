@@ -13,12 +13,12 @@ const { Zilliqa } = require('@zilliqa-js/zilliqa')
 const {  getPubKeyFromPrivateKey } = require('@zilliqa-js/crypto')
 const { BN, Long, units, bytes } = require('@zilliqa-js/util');
 const {JSONPath} = require('jsonpath-plus');
-const {bc_secrets} = require("../../secrets/blockchain.js");
+const {bc_secrets} = require("./secrets/blockchain.js");
 
 // set up zilliqa bc
 let zilliqa_chain = new Zilliqa(bc_secrets.zilliqa.api);
 zilliqa_chain.wallet.addByPrivateKey(bc_secrets.privateKey);
-const oracle_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.unixTimeOracle);
+const oracle_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.oracle);
 const version = bytes.pack(bc_secrets.zilliqa.chainId, bc_secrets.zilliqa.msgVersion);
 
 // Define custom error scenarios for the API.

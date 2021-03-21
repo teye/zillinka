@@ -11,10 +11,8 @@ const bc_secrets =
   },
 
   "contracts": { // addresses of deployed smart contracts
-    "unixTimeOracle": '0xaa28674d160a7b74cd6b3eedce733ac5c01cd26a',
-    "unixTimeOracleClient": '0x61b0e75ad884ccb3253c9eaa6396dea3c80f2f67',
-    "rhineGaugeOracle": '0xbd0a71b5490291cf99b00a733068627abdac6fcc',
-    "rhineGaugeOracleClient": '0xc9357c221cebf5f20e35153103032747a0d99bbf',
+    "oracle": '0xbd0a71b5490291cf99b00a733068627abdac6fcc',
+    "oracleClient": '0xc9357c221cebf5f20e35153103032747a0d99bbf',
   },
 
 }

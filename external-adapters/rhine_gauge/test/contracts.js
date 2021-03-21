@@ -3,7 +3,7 @@ var assert = require('assert');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { getPubKeyFromPrivateKey } = require('@zilliqa-js/crypto');
 const { BN, Long, units, bytes } = require('@zilliqa-js/util');
-const {bc_secrets} = require("../../../secrets/blockchain.js");
+const {bc_secrets} = require("../secrets/blockchain.js");
 
 async function call_contract(sc, transition_name, args, amt_as_BN,
       caller_pub_key, version, tx_settings)
@@ -45,10 +45,10 @@ describe("Oracle and OracleClient for Rhine Gauge", function () {
   function str_upper_eq(/*String*/str0, /*String*/str1) {return (str0.toUpperCase() == str1.toUpperCase());} // case insensitive str comparison
 
   it("should load the deployed contracts and their addresses should not be empty thereafter", async function() {
-    oracle_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.rhineGaugeOracle);
+    oracle_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.oracle);
     assert.notStrictEqual(oracle_sc.address,'');
     console.log(`  ... > address of deployed Oracle contract instance: ${oracle_sc.address}`);
-    client_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.rhineGaugeOracleClient);
+    client_sc = zilliqa_chain.contracts.at(bc_secrets.contracts.oracleClient);
     assert.notStrictEqual(client_sc.address,'');
     console.log(`  ... > address of deployed OracleClient contract instance: ${client_sc.address}`);
   });

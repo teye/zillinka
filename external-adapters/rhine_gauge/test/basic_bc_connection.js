@@ -3,7 +3,7 @@ var assert = require('assert');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { getAddressFromPrivateKey } = require('@zilliqa-js/crypto');
 const { BN, units } = require('@zilliqa-js/util');
-const {bc_secrets} = require("../../../secrets/blockchain.js");
+const {bc_secrets} = require("../secrets/blockchain.js");
 
 describe("Basic connection to blockchain and set up of account", function () {
 
