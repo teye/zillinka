@@ -41,8 +41,8 @@ transition change_oracle(new_address : ByStr20)
   event ev
 end
 
-(* @notice: callback function that oracle calls with the data when asked for it *)
-(* @param:  data : the value of the data requested                              *)
+(* @notice: callback function called by oracle with data *)
+(* @param:  data : the value of the unix timestamp       *)
 transition callback_data(data: Uint128)
   current_data <- all_data;
   new_data = Cons {Uint128} data current_data;

@@ -4,15 +4,14 @@ scilla_version 0
 (* Oracle: serves client requests through transition: request(date: String)         *)
 (*         emits an event with the request details, stores the request internally   *)
 (*         by assigning it a request_id storing the initiator (the client's addr)   *)
-(*         and the date received with the request                                   *)
+(*         and the date received with the request. The result of the request is     *)
+(*         an Option (initially None) that gets set once the contract receives the  *)
 (*         receives data through                                                    *)
 (*           set_data(data: Uint128, request_id: Uint32)                            *)
-(*         stores it internally (mostly for testing purpose) under the request_id   *)
-(*         and sends it back to the client by sending a message to its callback:    *)
-(*           callback_data(data: Uint32, date: String)                              *)
+(*         it stores the data internally (mostly for testing purpose) and sends it  *)
+(*         back to the client by sending a message to its callback:                 *)
+(*           callback_data(data: Uint128, date: String)                             *)
 (************************************************************************************)
-
-(*import ListUtils IntUtils BoolUtils *)
 
 library Oracle
 
@@ -39,13 +38,11 @@ let one_msg = (* Wrap single message into singleton list *)
 contract Oracle
 ()
 
-field next_request_id: Uint32 = Uint32 0 (* keep track of requests by increasig the counter *)
+field next_request_id: Uint32 = Uint32 0 (* keep track of requests by the counter *)
 field data_requests: Map Uint32 DataRequest = Emp Uint32 DataRequest (* m[req_id] = (requestor, date, [result]) *)
 
-
-
-(* @notice: request data from an oracle                 *)
-(* @param:  date: in format "yyyy-mm-dd"                *)
+(* @notice: request data from an oracle                             *)
+(* @param:  date: in format "yyyy-mm-dd"                            *)
 transition request(date: String)
   request_id <- next_request_id;
   no_result = None {Uint128};
@@ -58,10 +55,9 @@ transition request(date: String)
   event ev
 end
 
-
 (* @notice: give the oracle some (off-chain) data                   *)
-(* @param:  data: the data (e.g. a gauge level)                     *)
-(* @param:  req_id: the unique request id                           *)
+(* @param:  data: the data (here the gauge level for the given date *)
+(* @param:  request_id: the unique id as in emitted event above     *)
 transition set_data(data: Uint128, request_id: Uint32)
   req_o <- data_requests[request_id];
   match req_o with
@@ -77,5 +73,5 @@ transition set_data(data: Uint128, request_id: Uint32)
     msg = {_tag: "callback_data"; _recipient: to; _amount: zero128; data: data; date: date};
     msgs = one_msg msg;
     send msgs
-  end (* job_o *)
+  end (* req_o *)
 end
