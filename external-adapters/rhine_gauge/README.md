@@ -1,8 +1,8 @@
 # Chainlink NodeJS External Adapter To Fetch Rhine River Pegel Level
 
-Fetches the gauge level of river Rhine at Kaub station at a given date at noon (UTC + 1, i.e. central Europe standard time), see ""https://www.pegelonline.wsv.de/". The date is a parameter given as a string in the format "yyyy-mm-dd".
+Fetches the gauge level of river Rhine at Kaub station at a given date at noon (UTC + 1 or +2 (day light saving time), i.e. central Europe standard (or day light saving) time), see ""https://www.pegelonline.wsv.de/". The date is a parameter given as a string in the format "yyyy-mm-dd".
 
-The adapter then writes the unix time to a oracle contract on the Zilliqa blockchain.
+The adapter then writes the gauge level to an oracle contract on the Zilliqa blockchain.
 
 To run the adapter there are three possibilities:
 - through the oracle contract
@@ -13,7 +13,7 @@ To run the adapter there are three possibilities:
 Choose a "meaningful" date to request a gauge level:
 - Ensure the date chosen is not too far in the past as the api may no longer provide the corresponding gauge level. A date within the past two months should always work.
 - Make sure that the date is not in the future, and do not choose
-the actual date if noon (UTC +1) has not yet passed (as the gauge level will of course not yet be avalable!).
+the actual date if noon (UTC +1 or +2 (day light saving time)) has not yet passed (as the gauge level will of course not yet be avalable!).
 
 ## Requirements
 The client needs to implement the callback to receive the data together with the date the pegel level was requested for from the oracle:
