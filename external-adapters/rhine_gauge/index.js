@@ -35,17 +35,19 @@ const customParams = {
   date: ['date'] // the target date for the gauge level at noon in format "yyyy-mm-dd"
 }
 
-// extract specific entry from JSON object received as response for a given date and a given time
-function findValueAtTime(obj, target_date, target_time)
+// extract specific entry from JSON object received as response for a given date at 12:00:00 (ignoring the UTC offset)
+function findValueAtNoon(obj, /*string*/ target_date)
 {
   let v = -1;
-  let date_string = '';
+  let date_string = ''; // of the form 2021-03-17
+  let time_string = ''; // of the form T23:00:14
+  const target_time_string = "T12:00:00"; // without UTC offset
   try {
     obj.every( (item, index, array) => {
       const date_time = item.timestamp;
-      const ts = date_time.substr(date_time.length - target_time.length);
       date_string = date_time.substr(0, 10);
-      if (date_string == target_date && ts == target_time) {
+      time_string = date_time.substr(10, target_time_string.length); // allows to only compare, e.g., the hours or only hours and minutes
+      if (date_string == target_date && time_string == target_time_string) {
         v = item.value;
         return false;
       }
@@ -57,13 +59,12 @@ function findValueAtTime(obj, target_date, target_time)
       return {date: date_string, value: v};
     }
     else { // no value has been found for target time
-      throw Error(`no value found for target time ${target_time} on date ${target_date} (is it past noon already?`);
+      throw Error(`no value found for target time ${target_time_string} on date ${target_date} (is it past noon already?`);
     }
   } catch (err) {
     throw err;
   }
 }
-
 const createRequest = (input, callback) => {
   console.log(` ====> Request: = `);
   console.log(JSON.stringify(input));
@@ -73,7 +74,7 @@ const createRequest = (input, callback) => {
   const jobRunID = validator.validated.id
   const date = validator.validated.data.date
   const station_id = "1d26e504-7f9e-480a-b52c-5932be6549ab"; // Kaub
-  const time = "T12:00:00+01:00"; // noon at UTC + 1h, i.e. central europe
+  const time = "T12:00:00+02:00"; // get levels since noon at UTC + 2h, i.e. central europe standard time
   const url =
     "https://www.pegelonline.wsv.de/webservices/rest-api/v2/stations/"
     + station_id
@@ -81,7 +82,7 @@ const createRequest = (input, callback) => {
     + date
     + time;
   const requestId = validator.validated.data.requestId
-  const params = { requestId, date, time }
+  const params = { requestId, date }
 
   const config = {
     url,
@@ -92,7 +93,7 @@ const createRequest = (input, callback) => {
   // or connection failure
   Requester.request(config, customError)
     .then(response => {
-      const entry = findValueAtTime(response.data, params.date, params.time); // extract value at noon on target date
+      const entry = findValueAtNoon(response.data, params.date); // extract value at noon on target date
       response.data.result = Requester.validateResultNumber(entry, ["value"]);
       callback(response.status, Requester.success(jobRunID, response));
 
@@ -152,7 +153,6 @@ const createRequest = (input, callback) => {
     .then( (state) => {
       console.log(` ====> in oracle state: entry in DataRequest map for request with id = ${config.params.requestId}`);
       const entry = state.data_requests[config.params.requestId];
-      console.log(`       date is: ${entry.arguments[1]}`);
       console.log(`       pegel level is: ${entry.arguments[2].arguments[0]}`);
     })
     .then( )

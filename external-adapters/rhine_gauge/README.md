@@ -1,7 +1,6 @@
 # Chainlink NodeJS External Adapter To Fetch Rhine River Pegel Level
 
-Fetches the gauge level of river Rhine at Kaub station at a given date at noon (UTC + 1 or +2 (day light saving time), i.e. central Europe standard (or day light saving) time), see ""https://www.pegelonline.wsv.de/". The date is a parameter given as a string in the format "yyyy-mm-dd".
-
+Fetches the gauge level of river Rhine at Kaub station at a given date at "noon", see https://www.pegelonline.wsv.de/. The date is a parameter given as a string in the format "yyyy-mm-dd".
 The adapter then writes the gauge level to an oracle contract on the Zilliqa blockchain.
 
 To run the adapter there are three possibilities:
@@ -9,11 +8,13 @@ To run the adapter there are three possibilities:
 - through a client contract
 - in isolation (without the external initiator)
 
-### Note 
+### Notes
 Choose a "meaningful" date to request a gauge level:
 - Ensure the date chosen is not too far in the past as the api may no longer provide the corresponding gauge level. A date within the past two months should always work.
 - Make sure that the date is not in the future, and do not choose
 the actual date if noon (UTC +1 or +2 (day light saving time)) has not yet passed (as the gauge level will of course not yet be avalable!).
+
+Furthermore, for this example "noon" means 12:00:00 UTC + 1 (without daylight saving time) or 12:00:00 UTC + 2 (during day light saving time), i.e. simply 12:00:00 in central Europe (e.g. Berlin/Germany). Hence, during the summer with daylight saving time on, "noon" is 11:00:00 European Standard time, see https://www.timeanddate.com/time/change/germany.
 
 ## Requirements
 The client needs to implement the callback to receive the data together with the date the pegel level was requested for from the oracle:
@@ -95,6 +96,5 @@ Result:  {
  ===> calling set_data(173, 0) to write to oracle contract @  0xbd0a71b5490291cF99B00A733068627abdac6fcc
  ====> tx successful: querying state
  ====> in oracle state: entry in DataRequest map for request with id = 0
-       date is: 2021-03-12
        pegel level is: 173
 ```
