@@ -3,9 +3,9 @@
 Unix time is the number of seconds since  January 1st, 1970 at UTC, see https://www.unixtimestamp.com/ .
 
 This adapter fetches the unix time from the api  
-"http://worldtimeapi.org/api/timezone/Europe/Berlin" (timezone for central Europe CEST, irrelevant for unix time).
+"http://worldtimeapi.org/api/timezone/Europe/Berlin" (timezone for central Europe (i.e. city of Berlin), which is, however, irrelevant for unix time).
 
-The adapter then writes the unix time to a oracle contract on the Zilliqa blockchain. 
+The adapter then writes the unix time to an oracle contract on the Zilliqa blockchain. 
 
 To run the adapter there are three possibilities:
 - through the oracle contract
