@@ -7,42 +7,19 @@ import (
 )
 
 // https://dev.zilliqa.com/docs/dev/dev-tools-websockets/#subscribe-event-log
-var notification = `{
-  "query":"EventLog",
-  "value":
-  [
-    {
-      "address":"0x0000000000000000000000000000000000000000",
-      "event_logs":[
-        {
-          "_eventname":"foo1",
-          "params":[
-            {
-              "vname":"bar1",
-              "type":"String",
-              "value":"abc"
-            },
-            {
-              "vname":"bar2",
-              "type":"ByStr32",
-              "value":"0x0000000000000000000000000000000000000001"
-            }
-          ]
-        },
-      ]
-    }
-  ]
-}`
+var notification = `{"type":"Notification","values":[{"query":"EventLog","value":[{"address":"afccafdc1ce8249cec35a0b432e329ce1bfac179","event_logs":[{"_eventname":"request","params":[{"type":"String","value":"TEST","vname":"oracleId"},{"type":"Uint32","value":"0","vname":"requestId"},{"type":"ByStr20","value":"0x1a8ba23182e4686fb8121a310111d03b55c91b46","vname":"initiator"},{"type":"String","value":"kaub","vname":"argument"}]}]}]}]}`
 
 func handleZilRequest(conn string, kind string, msg []byte) ([][]byte, error) {
 	if conn == "ws" {
 		switch kind {
 		case "event-log":
 			return handleQueryEventLog(msg)
+		default:
+			return nil, fmt.Errorf("unexpected kind: %v", kind)
 		}
 	}
 
-	return nil, fmt.Errorf("unexpected kind: %v", kind)
+	return nil, fmt.Errorf("unexpected conn: %v", conn)
 }
 
 func handleQueryEventLog(msg []byte) ([][]byte, error) {
