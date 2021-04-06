@@ -62,7 +62,7 @@ Make curl call inside the same subdirectory `unixtime` in a different terminal:
 curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data":  { "requestId": 0} }'
 ```
 
-### Outputin the terminal/shell where ```yarn start``` was executed
+### Output in the terminal/shell where ```yarn start``` was executed
 The output can be used to check that the oracle contract has at the end the correct unix time stored: this is done by querying the contract's state at the very end.
 
 ` ====> Request: = `
