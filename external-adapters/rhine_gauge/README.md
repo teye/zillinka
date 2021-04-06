@@ -67,7 +67,7 @@ Make curl call inside the same subdirectory `rhine_gauge` in a different termina
 curl -X POST -H "content-type:application/json" "http://localhost:8080/" --data '{ "id": 0, "data": { "requestId": 0, "date": "2021-03-12"} }'
 ```
 
-### Outputin the terminal/shell where ```yarn start``` was executed
+### Output in the terminal/shell where ```yarn start``` was executed
 The output can be used to check that the oracle contract has at the end the correct pegel level stored: this is done by querying the contract's state at the very end.
 
 ` ====> Request: = `
