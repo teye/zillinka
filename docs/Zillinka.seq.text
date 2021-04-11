@@ -1,22 +1,21 @@
 # https://sequencediagram.org/
-title Chainlink - Zilliqua integration
+title Chainlink - Zilliqa integration
 
-participant Zilliqua RPC API
-participant Zilliqua Websocket API
+participant Zilliqa RPC API
+participant Zilliqa Websocket API
 participant External Initiator
 participant Chainlink Node
 participant External Adapter
 participant External API
 
 entryspacing 0.8
-External Initiator -> Zilliqua Websocket API: Subscribe to Eventlog of an array of addresses
-Zilliqua Websocket API -> External Initiator:Send EventLog on a new event
+External Initiator -> Zilliqa Websocket API: Subscribe to Eventlog of an array of addresses
+Zilliqa Websocket API -> External Initiator:Send EventLog on a new event
 External Initiator -> Chainlink Node: Process message, relay it to the bridge/adapter configured
 Chainlink Node -> External Adapter: Call the external adapter configured via the bridge
 activate External Adapter
 External Adapter -> External API: Send the request to the external API
 activate External Adapter
 External Adapter <<-- External API: Respond with payload from the external API
-Zilliqua RPC API <<-- External Adapter: Write payload to Zilliqua contract
+Zilliqa RPC API <<-- External Adapter: Write payload to Zilliqa contract
 deactivate External Adapter
-
