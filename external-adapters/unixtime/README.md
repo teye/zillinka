@@ -2,8 +2,7 @@
 
 Unix time is the number of seconds since  January 1st, 1970 at UTC, see https://www.unixtimestamp.com/ .
 
-This adapter fetches the unix time from the api  
-"http://worldtimeapi.org/api/timezone/Europe/Berlin" (timezone for central Europe (i.e. city of Berlin), which is, however, irrelevant for unix time).
+This adapter fetches the unix time from the [worldtime-api](http://worldtimeapi.org/api/timezone/Europe/Berlin). It has set the timezone to central Europe (i.e. city of Berlin), which is, however, irrelevant for unix time.
 
 The adapter then writes the unix time to an oracle contract on the Zilliqa blockchain. 
 
@@ -11,6 +10,20 @@ To run the adapter there are three possibilities:
 - through the oracle contract
 - through a client contract
 - in isolation (without the external initiator)
+
+## Scilla Contracts
+The smart contract code can be found in folder `./scilla/`:
+- [Oracle Client Contract](./scilla/OracleClient.scilla)
+- [Oracle Contract](./scilla/Oracle.scilla)
+
+Both the client and the oracle contracts are already deployed on the testnet, see the "contracts" entry in the JSON in [blockchain.js](./secrets/blockchain.js) for their addresses.
+
+To inspect their states, see [viewblock](https://viewblock.io/zilliqa?network=testnet) or [devex](https://devex.zilliqa.com/?network=https%3A%2F%2Fdev-api.zilliqa.com). 
+
+Namely, for
+- the [oracle client](https://viewblock.io/zilliqa/address/zil1rh9qg5aqj4waly03chwlvj6hlpedg2j5hcrxef?network=testnet&tab=state)
+- the [oracle](https://viewblock.io/zilliqa/address/zil1zq5pcumyf6n8fyy8wg9jh7w98x36nxlm8k6ehr?network=testnet&tab=state)
+
 
 ## Requirements
 The client needs to implement the callback to receive the data (i.e. the unix time) from the oracle:
