@@ -16,6 +16,21 @@ the actual date if noon (UTC +1 or +2 (day light saving time)) has not yet passe
 
 Furthermore, for this example "noon" means 12:00:00 UTC + 1 (without daylight saving time) or 12:00:00 UTC + 2 (during day light saving time), i.e. simply 12:00:00 in central Europe (e.g. Berlin/Germany). Hence, during the summer with daylight saving time on, "noon" is 11:00:00 European Standard time, see https://www.timeanddate.com/time/change/germany.
 
+
+## Scilla Contracts
+The smart contract code can be found in folder `./scilla/`:
+- [Oracle Client Contract](./scilla/OracleClient.scilla)
+- [Oracle Contract](./scilla/Oracle.scilla)
+
+Both the client and the oracle contracts are already deployed on the testnet, see the "contracts" entry in the JSON in [blockchain.js](./secrets/blockchain.js) for their addresses.
+
+To inspect their states, see [viewblock](https://viewblock.io/zilliqa?network=testnet) or [devex](https://devex.zilliqa.com/?network=https%3A%2F%2Fdev-api.zilliqa.com). 
+
+Namely, for
+- the [oracle client](https://viewblock.io/zilliqa/address/zil1ep8egmvsgntj3y7vgsthn5a4738spnahnuzegd?network=testnet&tab=state)
+- the [oracle](https://viewblock.io/zilliqa/address/zil1zk20mlrwk23acugt3ajmkvnujyxcy4m7tjcfue?network=testnet&tab=state)
+
+
 ## Requirements
 The client needs to implement the callback to receive the data together with the date the pegel level was requested for from the oracle:
 ```code
