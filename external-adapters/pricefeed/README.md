@@ -1,9 +1,5 @@
 # Chainlink NodeJS External Adapter To Fetch ZIL/USD
 
-Unix time is the number of seconds since  January 1st, 1970 at UTC, see https://www.unixtimestamp.com/ .
-
-This adapter fetches the unix time from the [worldtime-api](http://worldtimeapi.org/api/timezone/Europe/Berlin). It has set the timezone to central Europe (i.e. city of Berlin), which is, however, irrelevant for unix time.
-
 The adapter fetches the current ZIL/USD price from CoinGecko and writes the result to an oracle contract on the Zilliqa blockchain.
 
 To run the adapter there are three possibilities:
