@@ -40,7 +40,7 @@ const createRequest = (input, callback) => {
   const validator = new Validator(callback, input, customParams)
 
   const jobRunID = validator.validated.id
-  const url = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
+  const url = 'https://api.coingecko.com/api/v3/simple/price?ids=zilliqa&vs_currencies=usd'
   const requestId = validator.validated.data.requestId
   const params = { requestId }
 
@@ -53,33 +53,33 @@ const createRequest = (input, callback) => {
   // or connection failure
   Requester.request(config, customError)
     .then(response => {
-      response.data.result = Requester.validateResultNumber(response.data, ["unixtime"]) // extract unixtime from json
+      response.data.result = Requester.validateResultNumber(response.data, ["zilliqa", "usd"])
       console.log("api call: %o\n", response.data);
       callback(response.status, Requester.success(jobRunID, response));
 
       // Take the result and send it to Zilliqa oracle contract
-      const uxt = response.data.result;
-      console.log(` ===> unix time is ${uxt}`);
+      const price = response.data.result;
+      console.log(` ===> price is ${price}`);
       return new Promise(function(resolve, reject) {
-        if (uxt > 0) {
-          resolve(uxt);
+        if (price > 0) {
+          resolve(price);
         }
         else {
-          reject('unix time not positive')
+          reject('price is negative')
         }
       });
     })
-    .then( uxt => { // call the contract on chain to write the uxt on chain:
+    .then( price => { // call the contract on chain to write the price on chain:
       const args = [
-        { vname: 'data',      type: 'Uint128',  value: uxt.toString() },
+        { vname: 'data',      type: 'String',  value: price.toString() },
         { vname: 'request_id', type: 'Uint32',   value: config.params.requestId.toString()},
       ];
       console.log("HERE");
-      const gas_price = units.toQa('10000', units.Units.Li);
-      const gas_limit = Long.fromNumber(100000);
-      const attempts = Long.fromNumber(50);
+      const gas_price = units.toQa('2000', units.Units.Li);
+      const gas_limit = Long.fromNumber(10000);
+      const attempts = Long.fromNumber(33);
       const pub_key = getPubKeyFromPrivateKey(bc_secrets.privateKey);
-      console.log(` ===> calling set_data(${uxt}, ${config.params.requestId}) to write to oracle contract @  ${oracle_sc.address}`);
+      console.log(` ===> calling set_data(${price}, ${config.params.requestId}) to write to oracle contract @  ${oracle_sc.address}`);
 
       return oracle_sc.call(
         'set_data',

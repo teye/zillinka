@@ -104,6 +104,14 @@ services:
       - 8091:8080
     networks:
       - zilliqa
+  external-adapter-pricefeed:
+    build: external-adapters/pricefeed
+    container_name: external-adapter-pricefeed
+    restart: on-failure
+    ports:
+      - 8092:8080
+    networks:
+      - zilliqa
 volumes:
   core-db:
   ei-db:

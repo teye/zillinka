@@ -93,7 +93,7 @@ start_docker() {
   title "Starting Docker containers"
 
   docker-compose up -d core-db external-initiator-db chainlink-node geth-client \
-    external-adapter-unixtime external-adapter-rhine_gauge 
+    external-adapter-unixtime external-adapter-rhine_gauge external-adapter-pricefeed
 
   export CHAINLINK_URL="http://localhost:6688/"
   export EXTERNAL_INITIATOR_URL="http://external-initiator:8080/"

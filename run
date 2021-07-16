@@ -47,10 +47,12 @@ run() {
   # Arguments: bridge type, url
   ./helper/setup_bridge "zil-unixtime-bridge" "http://external-adapter-unixtime:8080"
   ./helper/setup_bridge "zil-rhine-gauge-bridge" "http://external-adapter-rhine_gauge:8080"
+  ./helper/setup_bridge "zil-pricefeed-bridge" "http://external-adapter-pricefeed:8080"
 
   # Arguments: name, endpoint, addresses, address, accountIds, bridge
   ./helper/setup_job "zil" "zil-ws" "0x10281c73644ea6749087720b2bf9c539a3a99bfb" "" "" "zil-unixtime-bridge"
   ./helper/setup_job "zil" "zil-ws" "0x1594fdfc6eb2a3dc710b8f65bb327c910d82577e" "" "" "zil-rhine-gauge-bridge"
+  ./helper/setup_job "zil" "zil-ws" "0xf9da9caaff19173dedc089c8bd25e42780123bcc" "" "" "zil-pricefeed-bridge"
   title "Started up"
 }
 
