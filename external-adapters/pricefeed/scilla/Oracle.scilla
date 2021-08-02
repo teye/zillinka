@@ -21,6 +21,11 @@ let zero128 = Uint128 0 (* used for zero amounts *)
 type DataRequest = (* requestor, [result] *)
   | DataRequest of ByStr20 (Option String)
 
+(* Error events *)
+type Error =
+| CodeNotContractOwner
+| CodeRequestNotFound
+
 let get_requestor = fun(request: DataRequest) =>
   match request with
   | DataRequest requestor result_o => requestor
@@ -31,11 +36,47 @@ let one_msg = (* Wrap single message into singleton list *)
     let nil_msg = Nil {Message} in
     Cons {Message} msg nil_msg
 
+let make_error =
+  fun (result : Error) =>
+    let result_code = 
+      match result with
+      | CodeNotContractOwner        => Int32 -1
+      | CodeRequestNotFound         => Int32 -2
+      end
+    in
+    { _exception : "Error"; code : result_code }
+
 contract Oracle
-()
+(initial_owner: ByStr20)
 
 field next_request_id: Uint32 = Uint32 0 (* keep track of requests by the counter *)
 field data_requests: Map Uint32 DataRequest = Emp Uint32 DataRequest (* m[req_id] = (requestor, [result]) *)
+field current_owner: ByStr20 = initial_owner
+
+procedure ThrowError(err : Error)
+  e = make_error err;
+  throw e
+end
+
+
+procedure IsSenderOwner(address: ByStr20)
+  owner <- current_owner;
+  is_owner = builtin eq owner address;
+  match is_owner with
+  | True =>
+  | False =>
+    err = CodeNotContractOwner;
+    ThrowError err
+  end
+end
+
+
+transition changeOwner(new_owner: ByStr20)
+  IsSenderOwner _sender;
+  current_owner := new_owner;
+  ev = {_eventname : "changeOwner"; new_owner: new_owner; initiator: _sender};
+  event ev
+end
 
 
 (* @notice: request data from an oracle                         *)
@@ -52,15 +93,16 @@ transition request()
 end
 
 
-(* @notice: give the oracle some (off-chain) data               *)
+(* @notice: give the oracle some (off-chain) data; used only by owner *)
 (* @param:  data : the data (price feed)                        *)
 (* @param:  request_id: the unique id as in emitted event above *)
 transition set_data(data: String, request_id: Uint32)
+  IsSenderOwner _sender;
   req_o <- data_requests[request_id];
   match req_o with
   |None =>
-    err = {_exception: "set_data: request does not exist in map"; requestId: request_id};
-    throw err
+    err = CodeRequestNotFound;
+    ThrowError err
   |Some request => (* emit and callback the requestor with the data *)
     to = get_requestor request;
     res_o = Some {String} data;
