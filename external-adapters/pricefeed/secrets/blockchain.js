@@ -11,7 +11,7 @@ const bc_secrets =
   },
 
   "contracts": { // addresses of deployed smart contracts
-    "oracle": '0xf9da9caaff19173dedc089c8bd25e42780123bcc',
+    "oracle": '0x6258030a82d3db4a831ee02b48a6df60fbef1979',
     "oracleClient": '0x67500fe4a7a12e83fa03a19ebd2817a4f8c7b933',
   },
 
