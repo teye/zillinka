@@ -47,7 +47,7 @@ services:
     networks:
       - zilliqa
   chainlink-node:
-    image: smartcontract/chainlink
+    image: smartcontract/chainlink:0.9.5
     container_name: chainlink-node
     restart: on-failure
     command: node start -d -p /run/secrets/password -a /run/secrets/apicredentials import /run/secrets/keystore

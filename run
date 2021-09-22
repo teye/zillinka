@@ -52,7 +52,7 @@ run() {
   # Arguments: name, endpoint, addresses, address, accountIds, bridge
   ./helper/setup_job "zil" "zil-ws" "0x10281c73644ea6749087720b2bf9c539a3a99bfb" "" "" "zil-unixtime-bridge"
   ./helper/setup_job "zil" "zil-ws" "0x1594fdfc6eb2a3dc710b8f65bb327c910d82577e" "" "" "zil-rhine-gauge-bridge"
-  ./helper/setup_job "zil" "zil-ws" "0xf9da9caaff19173dedc089c8bd25e42780123bcc" "" "" "zil-pricefeed-bridge"
+  ./helper/setup_job "zil" "zil-ws" "0x00543cb5d0e873048d2661eab68744f6a91c924b" "" "" "zil-pricefeed-bridge"
   title "Started up"
 }
 

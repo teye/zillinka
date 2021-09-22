@@ -103,4 +103,6 @@ Listening on port 8080!
 
 ### Issues
 
+If you notice the the EA which is invoked doesn't correspond to the rightful oracle client (e.g. execute unixtime oracle client but zil-pricefeed adapter is executed instead of zil-unixtime), delete the existing job spec and re-create again.
+
 If you encounter errors on the EI flow, you can raise an issue on this repo.
